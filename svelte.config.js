@@ -1,21 +1,12 @@
-import adapter from '@sveltejs/adapter-node';
+import adapter from '@sveltejs/adapter-vercel';
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
-  kit: {
-    adapter: adapter()
-  }
+	kit: {
+		adapter: adapter({
+			// see below for options that can be set here
+		})
+	}
 };
-export default config;
 
-/*
-import adapter from '@sveltejs/adapter-auto';
-const config = {
-  compilerOptions: {
-    runes: ({ filename }) => (filename.split(/[/\\]/).includes('node_modules') ? undefined : true)
-  },
-  kit: {
-    adapter: adapter()
-  }
-};
 export default config;
-*/
