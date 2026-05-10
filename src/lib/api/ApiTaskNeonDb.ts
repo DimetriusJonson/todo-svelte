@@ -83,9 +83,11 @@ export class ApiTaskNeonDb implements ApiTask {
             return { status: 401, success: false, responseData: null, error: { message: 'Unauthorized', unAuthorized: true } };
         }
 
-        let validateErrors = await this.validate<Task>(patch.title, user.id, false);
-        if (validateErrors) {
-            return validateErrors;
+        if (patch.title) {
+            let validateErrors = await this.validate<Task>(patch.title, user.id, false);
+            if (validateErrors) {
+                return validateErrors;
+            }
         }
 
         try {
