@@ -40,6 +40,7 @@
             <div class="level-left">
                 <div class="level-item">
                     <form method="GET" action="?/">
+                        <div class="buttons">
                         <SelectInput
                             name="filterSelect"
                             notSelectedText="Фильтр"
@@ -67,6 +68,7 @@
                                 label="Применить"
                             />
                         {/if}
+                        </div>
                     </form>
                 </div>
             </div>

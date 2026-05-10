@@ -45,13 +45,12 @@
                     {/if}
                 </div>
 
-                <div class="field is-grouped">
+                <div class="buttons">
                     <ButtonLink
                         className="is-light"
                         href={"/task/" + params.id + "/edit"}
                         label="Редактировать"
                     />
-
                     <form
                         method="POST"
                         action="?/delete"
