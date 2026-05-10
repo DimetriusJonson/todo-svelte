@@ -80,8 +80,7 @@ export class ApiTaskNeonDb implements ApiTask {
         }
 
         try {
-            let completed_at = task.completed_at ? Date.parse(task.completed_at) : null;
-            let rows = await sql`INSERT INTO tasks(title, description, priority, completed_at, user_id) VALUES(${task.title}, ${task.description}, ${task.priority}, ${completed_at}, ${user.id}) RETURNING id`;
+            let rows = await sql`INSERT INTO tasks(title, description, priority, completed_at, user_id) VALUES(${task.title}, ${task.description}, ${task.priority}, ${task.completed_at}, ${user.id}) RETURNING id`;
             return { success: true, status: 200, error: null, responseData: { ...task, id: rows[0].id } };
         } catch (error: any) {
             return { success: false, status: 500, responseData: null, error: { message: error.toString() } }
