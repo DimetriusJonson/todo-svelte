@@ -54,12 +54,19 @@ export class ApiTaskNeonDb implements ApiTask {
         return { status: 200, success: true, responseData: { data: tasks }, error: null };
     }
 
-    validate<T>(title: string | null | undefined): ApiResponse<T> | null {
+    async validate<T>(title: string | null | undefined, userId: number | null, create: boolean): Promise<ApiResponse<T> | null> {
         let errorsMap = new Map();
 
         let regExp = new RegExp('^[А-Яа-яA-Za-z0-9 ]{3,}$');
         if (!regExp.test(title ?? '')) {
             errorsMap.set('title', 'Разрешены только буквы и цифры и не менее 3-х символов.');
+        }
+
+        if (create) {
+            let rows = await sql`SELECT id FROM tasks WHERE title=${title} and user_id=${userId}`;
+            if (rows && rows.length > 0) {
+                errorsMap.set('title', 'Задача с таким именем уже существует!');
+            }
         }
 
         if (errorsMap.size > 0) {
@@ -71,14 +78,14 @@ export class ApiTaskNeonDb implements ApiTask {
 
 
     async update(params: any, patch: Task): Promise<ApiResponse<Task>> {
-        let validateErrors = this.validate<Task>(patch.title);
-        if (validateErrors) {
-            return validateErrors;
-        }
-
         let user = await getCurrentUser(params);
         if (!user) {
             return { status: 401, success: false, responseData: null, error: { message: 'Unauthorized', unAuthorized: true } };
+        }
+
+        let validateErrors = await this.validate<Task>(patch.title, user.id, false);
+        if (validateErrors) {
+            return validateErrors;
         }
 
         try {
@@ -95,14 +102,14 @@ export class ApiTaskNeonDb implements ApiTask {
     }
 
     async create(params: any, task: Task): Promise<ApiResponse<Task>> {
-        let validateErrors = this.validate<Task>(task.title);
-        if (validateErrors) {
-            return validateErrors;
-        }
-
         let user = await getCurrentUser(params);
         if (!user) {
             return { status: 401, success: false, responseData: null, error: { message: 'Unauthorized', unAuthorized: true } };
+        }
+
+        let validateErrors = await this.validate<Task>(task.title, user.id, true);
+        if (validateErrors) {
+            return validateErrors;
         }
 
         try {

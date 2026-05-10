@@ -43,7 +43,7 @@ export class ApiUserNeonDb implements ApiUser {
         return { status: 200, success: true, responseData: { data: users }, error: null };
     }
 
-    validate<T>(username: string, password: string): ApiResponse<T> | null {
+    async validate<T>(username: string, password: string, create: boolean): Promise<ApiResponse<T> | null> {
         let errorsMap = new Map();
         if (!username || username.length < 3) {
             errorsMap.set('username', 'Минимальное число символов 3');
@@ -51,6 +51,13 @@ export class ApiUserNeonDb implements ApiUser {
 
         if (!password || password.length < 4) {
             errorsMap.set('password', 'Минимальное число символов 4');
+        }
+
+        if (create) {
+            let rows = await sql`SELECT id FROM users WHERE username=${username}`;
+            if (rows && rows.length > 0) {
+                errorsMap.set('username', 'Пользователь с таким именем уже существует!');
+            }
         }
 
         if (errorsMap.size > 0) {
@@ -61,7 +68,7 @@ export class ApiUserNeonDb implements ApiUser {
     }
 
     async create(_params: any, request: CreateUserRequest): Promise<ApiResponse<CreateUserResponse>> {
-        let validateErrors = this.validate<CreateUserResponse>(request.username, request.password);
+        let validateErrors = await this.validate<CreateUserResponse>(request.username, request.password, true);
         if (validateErrors) {
             return validateErrors;
         }
@@ -76,7 +83,7 @@ export class ApiUserNeonDb implements ApiUser {
     }
 
     async login(_params: any, request: LoginRequest): Promise<ApiResponse<LoginResponse>> {
-        let validateErrors = this.validate<LoginResponse>(request.username, request.password);
+        let validateErrors = await this.validate<LoginResponse>(request.username, request.password, false);
         if (validateErrors) {
             return validateErrors;
         }
