@@ -31,8 +31,8 @@
                             <span class="is-size-3">{"❌"}</span>
                         {/if}
                     </div>
-                    <div class="media-content">
-                        <p class="title is-4">{data.task?.title}</p>
+                    <div>
+                        <p class="title is-size-4 is-size-6-mobile">{data.task?.title}</p>
                         <p class="subtitle is-6">
                             {taskPriorityName(data.task ?? {})}
                         </p>
@@ -47,9 +47,9 @@
 
                 <div class="buttons">
                     <ButtonLink
-                        className="is-light"
+                        className="is-light is-size-7-mobile"
                         href={"/task/" + params.id + "/edit"}
-                        label="Редактировать"
+                        label="Изменить"
                     />
                     <form
                         method="POST"
@@ -76,7 +76,7 @@
                         />
 
                         <Button
-                            className="is-danger"
+                            className="is-danger is-size-7-mobile"
                             label="Удалить"
                             disabled={apiInProgressGlobal.value}
                             loading={apiInProgressGlobal.value}

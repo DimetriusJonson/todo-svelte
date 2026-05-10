@@ -34,13 +34,13 @@
     );
 </script>
 
-<section class="section is-paddingless">
+<section class="section is-paddingless is-size-7-mobile">
     <div class="container">
         <nav class="level">
             <div class="level-left">
                 <div class="level-item">
                     <form method="GET" action="?/">
-                        <div class="buttons">
+                        <div class="buttons is-centered">
                         <SelectInput
                             name="filterSelect"
                             notSelectedText="Фильтр"
@@ -75,7 +75,7 @@
             <div class="level-right">
                 {#if data.authData}
                     <ButtonLink
-                        className="level-item is-light"
+                        className="level-item is-light is-size-7-mobile"
                         href="/task/create"
                         id="create_button"
                         label="Создать"

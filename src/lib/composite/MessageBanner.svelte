@@ -25,7 +25,7 @@
     class="has-text-centered py-3"
     style:position="fixed"
     style:left="0"
-    style:bottom="40px"
+    style:bottom="1.5rem"
     style:width="100%"
     style:z-index="1000"
 >

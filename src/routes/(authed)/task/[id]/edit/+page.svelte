@@ -7,7 +7,7 @@
 
 <section class="section">
     <div class="container">
-        <MainTitle title={"Редактировать задачу"} />
+        <MainTitle title={"Редактировать задачу"}/>
         <TaskEditForm {data} {form} action="update"/>
     </div>
 </section>
