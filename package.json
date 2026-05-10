@@ -1,0 +1,36 @@
+{
+	"name": "svelte-first",
+	"private": true,
+	"version": "0.0.1",
+	"type": "module",
+	"scripts": {
+		"dev": "vite dev",
+		"build": "vite build",
+		"preview": "vite preview",
+		"prepare": "svelte-kit sync || echo ''",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "^7.0.1",
+		"@sveltejs/adapter-node": "^5.5.4",
+		"@sveltejs/adapter-static": "^3.0.10",
+		"@sveltejs/kit": "^2.57.0",
+		"@sveltejs/vite-plugin-svelte": "^7.0.0",
+		"@types/bcrypt": "^6.0.0",
+		"@types/better-sqlite3": "^7.6.13",
+		"@types/jsonwebtoken": "^9.0.10",
+		"@types/node": "^25.6.0",
+		"svelte": "^5.55.2",
+		"svelte-check": "^4.4.7",
+		"typescript": "^6.0.2",
+		"vite": "^8.0.7"
+	},
+	"dependencies": {
+		"@types/js-cookie": "^3.0.6",
+		"bcrypt": "^6.0.0",
+		"better-sqlite3": "^12.9.0",
+		"js-cookie": "^3.0.5",
+		"jsonwebtoken": "^9.0.3"
+	}
+}
