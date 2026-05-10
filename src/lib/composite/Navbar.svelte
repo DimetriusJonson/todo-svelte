@@ -38,18 +38,16 @@
         </a>
     </div>
 
-    <div class="navbar-menu">
-        <div class="navbar-start">
-            <div class="navbar-item pl-0">
-                <ButtonLink label="Пользователи" href="/users" />
-            </div>
-        </div>
-    </div>
-
     <div
         class={`navbar-menu ${navLinksActive ? "is-active" : ""}`}
         id="nav-links"
     >
+        <div class="navbar-start">
+            <div class="navbar-item">
+                <ButtonLink label="Пользователи" href="/users" />
+            </div>
+        </div>
+
         <div class="navbar-end">
             <div class="buttons">
                 {#if authData?.userName}
@@ -88,14 +86,14 @@
                         </form>
                     </div>
                 {:else}
-                    <div class="navbar-item pr-0">
+                    <div class="navbar-item">
                         <ButtonLink
                             className="button is-warning is-soft is-rounded"
                             label="Создать пользователя"
                             href="/createUser"
                         />
                     </div>
-                    <div class="navbar-item pl-0">
+                    <div class="navbar-item">
                         <ButtonLink
                             className="is-light"
                             label="Войти"
