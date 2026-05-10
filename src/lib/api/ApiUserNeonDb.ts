@@ -54,7 +54,7 @@ export class ApiUserNeonDb implements ApiUser {
         }
 
         if (create) {
-            let rows = await sql`SELECT id FROM users WHERE username=${username}`;
+            let rows = await sql`SELECT id FROM users WHERE upper(username)=${username.toUpperCase()} and deleted_at is null`;
             if (rows && rows.length > 0) {
                 errorsMap.set('username', 'Пользователь с таким именем уже существует!');
             }

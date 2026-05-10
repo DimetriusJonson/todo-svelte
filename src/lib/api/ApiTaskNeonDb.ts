@@ -63,7 +63,7 @@ export class ApiTaskNeonDb implements ApiTask {
         }
 
         if (create) {
-            let rows = await sql`SELECT id FROM tasks WHERE title=${title} and user_id=${userId}`;
+            let rows = await sql`SELECT id FROM tasks WHERE upper(title)=${title?.toUpperCase()} and user_id=${userId} and deleted_at is null`;
             if (rows && rows.length > 0) {
                 errorsMap.set('title', 'Задача с таким именем уже существует!');
             }
