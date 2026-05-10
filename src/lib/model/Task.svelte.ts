@@ -1,4 +1,4 @@
-export const MIN_COMPLETED_AT = '-262143-01-01T00:00:00Z';
+export const MIN_COMPLETED_AT = '1900-01-01T00:00:00.000Z';
 
 export type TasksResponse = {
     data: Task[],
