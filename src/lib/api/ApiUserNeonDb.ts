@@ -43,7 +43,29 @@ export class ApiUserNeonDb implements ApiUser {
         return { status: 200, success: true, responseData: { data: users }, error: null };
     }
 
+    validate<T>(username: string, password: string): ApiResponse<T> | null {
+        let errorsMap = new Map();
+        if (!username || username.length < 3) {
+            errorsMap.set('username', 'Минимальное число символов 3');
+        }
+
+        if (!password || password.length < 4) {
+            errorsMap.set('password', 'Минимальное число символов 4');
+        }
+
+        if (errorsMap.size > 0) {
+            return { success: false, status: 422, responseData: null, error: { message: 'Validate error', validateErrors: errorsMap } }
+        }
+
+        return null;
+    }
+
     async create(_params: any, request: CreateUserRequest): Promise<ApiResponse<CreateUserResponse>> {
+        let validateErrors = this.validate<CreateUserResponse>(request.username, request.password);
+        if (validateErrors) {
+            return validateErrors;
+        }
+
         try {
             let hashedPassword = await hashPassword(request.password);
             let rows = await sql`INSERT INTO users(username, password) VALUES(${request.username}, ${hashedPassword}) RETURNING id`;
@@ -54,6 +76,11 @@ export class ApiUserNeonDb implements ApiUser {
     }
 
     async login(_params: any, request: LoginRequest): Promise<ApiResponse<LoginResponse>> {
+        let validateErrors = this.validate<LoginResponse>(request.username, request.password);
+        if (validateErrors) {
+            return validateErrors;
+        }
+
         try {
             let userRow;
 
@@ -63,11 +90,11 @@ export class ApiUserNeonDb implements ApiUser {
             }
 
             if (!userRow) {
-                return { success: false, status: 404, responseData: null, error: { message: 'Not found user ' + request.username } };
+                return { success: false, status: 404, responseData: null, error: { message: `Пользователь ${request.username} не найден` } };
             }
 
             if (!checkPassword(request.password, userRow.password)) {
-                return { success: false, status: 400, responseData: null, error: { message: 'Wrong username or password!' } };
+                return { success: false, status: 400, responseData: null, error: { message: 'Неверное имя пользователя или пароль!' } };
             }
 
             let token = createJwtToken(userRow.id, userRow.username);

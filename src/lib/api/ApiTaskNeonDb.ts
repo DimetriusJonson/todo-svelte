@@ -26,7 +26,7 @@ export class ApiTaskNeonDb implements ApiTask {
 
             return { status: 200, success: true, responseData: task, error: null };
         } else {
-            error(404, "Not found task id=" + id);
+            error(404, `Задача ${1} не найдена!`);
         }
     }
 
@@ -54,7 +54,28 @@ export class ApiTaskNeonDb implements ApiTask {
         return { status: 200, success: true, responseData: { data: tasks }, error: null };
     }
 
+    validate<T>(title: string | null | undefined): ApiResponse<T> | null {
+        let errorsMap = new Map();
+
+        let regExp = new RegExp('^[А-Яа-яA-Za-z0-9 ]{3,}$');
+        if (!regExp.test(title ?? '')) {
+            errorsMap.set('title', 'Разрешены только буквы и цифры и не менее 3-х символов.');
+        }
+
+        if (errorsMap.size > 0) {
+            return { success: false, status: 422, responseData: null, error: { message: 'Validate error', validateErrors: errorsMap } }
+        }
+
+        return null;
+    }
+
+
     async update(params: any, patch: Task): Promise<ApiResponse<Task>> {
+        let validateErrors = this.validate<Task>(patch.title);
+        if (validateErrors) {
+            return validateErrors;
+        }
+
         let user = await getCurrentUser(params);
         if (!user) {
             return { status: 401, success: false, responseData: null, error: { message: 'Unauthorized', unAuthorized: true } };
@@ -74,6 +95,11 @@ export class ApiTaskNeonDb implements ApiTask {
     }
 
     async create(params: any, task: Task): Promise<ApiResponse<Task>> {
+        let validateErrors = this.validate<Task>(task.title);
+        if (validateErrors) {
+            return validateErrors;
+        }
+
         let user = await getCurrentUser(params);
         if (!user) {
             return { status: 401, success: false, responseData: null, error: { message: 'Unauthorized', unAuthorized: true } };
