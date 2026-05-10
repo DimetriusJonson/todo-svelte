@@ -1,6 +1,7 @@
 import Database from "better-sqlite3";
 import { env } from '$env/dynamic/private';
 
+console.log("env.DATABASE_URL=" + env.DATABASE_URL);
 const db = new Database(env.DATABASE_URL);
 
 export default db;
