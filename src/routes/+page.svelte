@@ -35,53 +35,45 @@
 </script>
 
 <div class="container is-size-7-mobile pt-5">
-    <nav class="level">
-        <div class="level-left">
-            <div class="level-item">
-                <form method="GET" action="?/">
-                    <div class="buttons is-centered">
-                        <SelectInput
-                            name="filterSelect"
-                            notSelectedText="Фильтр"
-                            value={filterSelect ?? tasksSettings.value.filter}
-                            options={data.filterOptions}
-                            onChange={(value: string) => {
-                                tasksSettings.value.filter = value;
-                                tasksSettings.saveValue();
-                            }}
-                        />
-                        <SelectInput
-                            className="ml-3"
-                            name="sortSelect"
-                            notSelectedText="Сортировка"
-                            value={sortSelect ?? tasksSettings.value.sortKind}
-                            options={data.sortOptions}
-                            onChange={(value: string) => {
-                                tasksSettings.value.sortKind = value;
-                                tasksSettings.saveValue();
-                            }}
-                        />
-                        {#if showFilterSubmit}
-                            <Button
-                                className="is-warning is-light"
-                                label="Применить"
-                            />
-                        {/if}
-                    </div>
-                </form>
-            </div>
-        </div>
-        <div class="level-right">
+    <form method="GET" action="?/">
+        <div class="buttons is-justify-content-space-between px-2 pb-5">
+            <span>
+                <SelectInput
+                    className="is-size-7-mobile"
+                    name="filterSelect"
+                    notSelectedText="Фильтр"
+                    value={filterSelect ?? tasksSettings.value.filter}
+                    options={data.filterOptions}
+                    onChange={(value: string) => {
+                        tasksSettings.value.filter = value;
+                        tasksSettings.saveValue();
+                    }}
+                />
+                <SelectInput
+                    className="is-size-7-mobile pl-2"
+                    name="sortSelect"
+                    notSelectedText="Сортировка"
+                    value={sortSelect ?? tasksSettings.value.sortKind}
+                    options={data.sortOptions}
+                    onChange={(value: string) => {
+                        tasksSettings.value.sortKind = value;
+                        tasksSettings.saveValue();
+                    }}
+                />
+                {#if showFilterSubmit}
+                    <Button className="is-light is-size-7-mobile" label="Ok" />
+                {/if}
+            </span>
             {#if data.authData}
                 <ButtonLink
                     className="level-item is-light is-size-7-mobile"
                     href="/task/create"
                     id="create_button"
-                    label="Создать"
+                    label="+"
                 />
             {/if}
         </div>
-    </nav>
+    </form>
 
     <TasksPanel tasks={filteredTasks} />
 </div>

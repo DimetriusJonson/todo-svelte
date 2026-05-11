@@ -40,7 +40,7 @@
 	</div>
 {/if}
 
-<section class="section">
+<section class="section p-0">
 	<div class="is-paddingless">
 		<Navbar authData={data.authData} />
 		{@render children()}

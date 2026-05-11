@@ -16,7 +16,7 @@
 
 </script>
 
-<div class="container pt-5">
+<div class="container p-4">
     <MainTitle title="Создать пользователя" />
     <form
         class="box"

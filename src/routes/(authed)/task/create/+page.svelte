@@ -5,9 +5,7 @@
     let { form, data } = $props();
 </script>
 
-<section class="section">
-    <div class="container">
-        <MainTitle title={"Создать задачу"} />
-        <TaskEditForm {data} {form} action='create'/>
-    </div>
-</section>
+<div class="container p-4">
+    <MainTitle title={"Создать задачу"} />
+    <TaskEditForm {data} {form} action="create" />
+</div>

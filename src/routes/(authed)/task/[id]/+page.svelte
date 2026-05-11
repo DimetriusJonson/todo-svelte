@@ -15,7 +15,7 @@
     onMount(() => (onServerRedirectTo = ""));
 </script>
 
-<div class="container pt-5">
+<div class="container p-4">
     <div class="message">
         <div class="message-header">
             <p>{"Сделать"}</p>
