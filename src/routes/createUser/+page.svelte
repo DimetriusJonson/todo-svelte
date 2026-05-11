@@ -16,7 +16,7 @@
 
 </script>
 
-<section class="section container">
+<div class="container pt-5">
     <MainTitle title="Создать пользователя" />
     <form
         class="box"
@@ -75,4 +75,4 @@
             </div>
         </fieldset>
     </form>
-</section>
+</div>

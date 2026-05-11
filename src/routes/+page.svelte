@@ -34,13 +34,12 @@
     );
 </script>
 
-<section class="section is-paddingless is-size-7-mobile">
-    <div class="container">
-        <nav class="level">
-            <div class="level-left">
-                <div class="level-item">
-                    <form method="GET" action="?/">
-                        <div class="buttons is-centered">
+<div class="container is-size-7-mobile pt-5">
+    <nav class="level">
+        <div class="level-left">
+            <div class="level-item">
+                <form method="GET" action="?/">
+                    <div class="buttons is-centered">
                         <SelectInput
                             name="filterSelect"
                             notSelectedText="Фильтр"
@@ -68,22 +67,21 @@
                                 label="Применить"
                             />
                         {/if}
-                        </div>
-                    </form>
-                </div>
+                    </div>
+                </form>
             </div>
-            <div class="level-right">
-                {#if data.authData}
-                    <ButtonLink
-                        className="level-item is-light is-size-7-mobile"
-                        href="/task/create"
-                        id="create_button"
-                        label="Создать"
-                    />
-                {/if}
-            </div>
-        </nav>
+        </div>
+        <div class="level-right">
+            {#if data.authData}
+                <ButtonLink
+                    className="level-item is-light is-size-7-mobile"
+                    href="/task/create"
+                    id="create_button"
+                    label="Создать"
+                />
+            {/if}
+        </div>
+    </nav>
 
-        <TasksPanel tasks={filteredTasks} />
-    </div>
-</section>
+    <TasksPanel tasks={filteredTasks} />
+</div>
