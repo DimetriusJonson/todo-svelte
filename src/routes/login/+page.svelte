@@ -10,6 +10,7 @@
     } from "$lib/store/settings.svelte";
     import { page } from "$app/state";
     import { onMount } from "svelte";
+    import ButtonLink from "$lib/components/ButtonLink.svelte";
 
     let { form } = $props();
     let defUserName = $derived(page.url.searchParams.get('defUserName'));
@@ -65,14 +66,17 @@
                     error={form?.error?.validateErrors?.get("password")}
                 />
             </div>
-            <div class="field">
-                <div class="control">
+            <div class="buttons">
                     <Button
                         className="is-primary"
                         label="Войти"
                         loading={apiInProgressGlobal.value}
                     />
-                </div>
+                    <ButtonLink
+                        className="is-ghost"
+                        href="/createUser"
+                        label="Создать"
+                    />
             </div>
         </fieldset>
     </form>

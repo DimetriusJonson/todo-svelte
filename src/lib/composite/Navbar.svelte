@@ -8,12 +8,15 @@
     import { apiInProgressGlobal } from "$lib/store/settings.svelte";
     import { onMount } from "svelte";
 
-    let navLinksActive = $state(false);
+    let navLinksActive = $state(true);
 
     let { authData } = $props();
 
     let onServerRedirectTo = $derived("/");
-    onMount(() => (onServerRedirectTo = ""));
+    onMount(() => {
+        onServerRedirectTo = "";
+        navLinksActive = false;
+    });
 </script>
 
 <nav class="navbar is-primary" aria-label="main navigation">
