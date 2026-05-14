@@ -2,35 +2,31 @@
     import Button from "$lib/components/Button.svelte";
     import MainTitle from "$lib/components/MainTitle.svelte";
     import { page } from "$app/state";
-    import { onMount } from "svelte";
     import ButtonLink from "$lib/components/ButtonLink.svelte";
     import { login } from "./data.remote.js";
-    import { showError, showInfo } from "$lib/store/messages.svelte.js";
-
+    import { showInfo } from "$lib/store/messages.svelte.js";
+    import { goto } from "$app/navigation";
+    
     let redirectTo = $derived(page.url.searchParams.get("redirectTo"));
-    let onServerRedirectTo = $derived(redirectTo ?? "/");
-
     login.fields.userName.set(page.url.searchParams.get("defUserName") ?? "");
-
-    onMount(() => (onServerRedirectTo = ""));
 </script>
 
 <div class="container p-4">
     <MainTitle title="Вход в систему" />
 
     <form
-        {...login.enhance(async ({ submit }) => {
+        {...login.enhance(async ({ form, data, submit }) => {
             if (await submit()) {
                 if (!login.result?.error) {
+                    form.reset();
+                    goto(data.redirectTo);
                     showInfo("Вы вошли!");
                 }
-            } else {
-                showError("Ошибка!");
             }
         })}
     >
         <fieldset disabled={login.pending > 0}>
-            <input {...login.fields.redirectTo.as("hidden", onServerRedirectTo)} />
+            <input {...login.fields.redirectTo.as("hidden", redirectTo ?? '/')} />
 
             {#if login.result?.error}
                 <div class="box">
@@ -73,6 +69,7 @@
                     className="is-primary"
                     label="Войти"
                     loading={login.pending > 0}
+                    disabled={login.pending > 0}
                 />
                 <ButtonLink
                     className="is-ghost"

@@ -15,7 +15,6 @@ export const login = form(LoginSchema, async ({userName, password, redirectTo}) 
 
     let result = await apiUser.login(null, { username: userName, password: password } as LoginRequest);
     if (result.success) {
-        console.log('success');
         apiUser.saveAuthDataAsCookie(event.cookies, { userId: result.responseData?.id ?? 0, userName: result.responseData?.username ?? '', token: result.responseData?.token ?? '' });
         redirect(303, redirectTo );
     } else {
