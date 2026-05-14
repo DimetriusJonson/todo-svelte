@@ -100,7 +100,7 @@ export class ApiUserNeonDb implements ApiUser {
                 return { success: false, status: 404, responseData: null, error: { message: `Пользователь ${request.username} не найден` } };
             }
 
-            if (!checkPassword(request.password, userRow.password)) {
+            if (!await checkPassword(request.password, userRow.password)) {
                 return { success: false, status: 400, responseData: null, error: { message: 'Неверное имя пользователя или пароль!' } };
             }
 

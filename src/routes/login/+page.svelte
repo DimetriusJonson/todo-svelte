@@ -1,82 +1,84 @@
 <script lang="ts">
-    import { enhance } from "$app/forms";
-    import { goto } from "$app/navigation";
     import Button from "$lib/components/Button.svelte";
     import MainTitle from "$lib/components/MainTitle.svelte";
-    import TextWithError from "$lib/components/TextWithError.svelte";
-    import { showInfo } from "$lib/store/messages.svelte";
-    import {
-        apiInProgressGlobal,
-    } from "$lib/store/settings.svelte";
     import { page } from "$app/state";
     import { onMount } from "svelte";
     import ButtonLink from "$lib/components/ButtonLink.svelte";
+    import { login } from "./data.remote.js";
+    import { showError, showInfo } from "$lib/store/messages.svelte.js";
 
-    let { form } = $props();
-    let defUserName = $derived(page.url.searchParams.get('defUserName'));
-    let redirectTo = $derived(page.url.searchParams.get('redirectTo'));
-    let onServerRedirectTo = $derived(redirectTo ?? '/');
+    let redirectTo = $derived(page.url.searchParams.get("redirectTo"));
+    let onServerRedirectTo = $derived(redirectTo ?? "/");
 
-    onMount(() => onServerRedirectTo = '');
+    login.fields.userName.set(page.url.searchParams.get("defUserName") ?? "");
+
+    onMount(() => (onServerRedirectTo = ""));
 </script>
 
 <div class="container p-4">
     <MainTitle title="Вход в систему" />
+
     <form
-        class="box"
-        method="POST"
-        action="?/login"
-        use:enhance={() => {
-            apiInProgressGlobal.value = true;
-            return async ({ result, update }) => {
-                await update();
-                apiInProgressGlobal.value = false;
-                if (result.type === "success") {
+        {...login.enhance(async ({ submit }) => {
+            if (await submit()) {
+                if (!login.result?.error) {
                     showInfo("Вы вошли!");
-                    goto(redirectTo ?? "/");
                 }
-            };
-        }}
+            } else {
+                showError("Ошибка!");
+            }
+        })}
     >
-        <fieldset disabled={apiInProgressGlobal.value}>
-            {#if form?.error && !form.error.validateErrors}
+        <fieldset disabled={login.pending > 0}>
+            <input {...login.fields.redirectTo.as("hidden", onServerRedirectTo)} />
+
+            {#if login.result?.error}
                 <div class="box">
                     <span class="message is-danger">
-                        {form.error.message}
+                        {login.result?.error.message}
                     </span>
                 </div>
             {/if}
 
-            <input type="hidden" name="redirectTo" value="{onServerRedirectTo}"/>
+            <div class="field">
+                <div class="control">
+                    <input
+                        {...login.fields.userName.as("text")}
+                        class={"input " +
+                            (login.fields.userName.issues() ? "is-danger" : "")}
+                        placeholder="Имя пользователя"
+                    />
+                </div>
+                {#each login.fields.userName.issues() as issue}
+                    <p class="help is-danger">{issue.message}</p>
+                {/each}
+            </div>
 
             <div class="field">
-                <TextWithError
-                    name="userName"
-                    placeholder="Имя пользователя"
-                    value={form?.user?.userName?.toString() ?? defUserName ?? ''}
-                    error={form?.error?.validateErrors?.get("username")}
-                />
+                <div class="control">
+                    <input
+                        {...login.fields.password.as("password")}
+                        class={"input " +
+                            (login.fields.password.issues() ? "is-danger" : "")}
+                        placeholder="Пароль"
+                    />
+                </div>
+                {#each login.fields.password.issues() as issue}
+                    <p class="help is-danger">{issue.message}</p>
+                {/each}
             </div>
-            <div class="field">
-                <TextWithError
-                    name="password"
-                    placeholder="Пароль"
-                    inputType={"password"}
-                    value={form?.user?.password?.toString() ?? ""}
-                    error={form?.error?.validateErrors?.get("password")}
-                />
-            </div>
+
             <div class="buttons">
-                    <Button
-                        className="is-primary"
-                        label="Войти"
-                        loading={apiInProgressGlobal.value}
-                    />
-                    <ButtonLink
-                        className="is-ghost"
-                        href="/createUser"
-                        label="Создать"
-                    />
+                <Button
+                    className="is-primary"
+                    label="Войти"
+                    loading={login.pending > 0}
+                />
+                <ButtonLink
+                    className="is-ghost"
+                    href="/createUser"
+                    label="Создать"
+                />
             </div>
         </fieldset>
     </form>
