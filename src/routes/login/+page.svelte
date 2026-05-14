@@ -6,27 +6,34 @@
     import { login } from "./data.remote.js";
     import { showInfo } from "$lib/store/messages.svelte.js";
     import { goto } from "$app/navigation";
-    
+    import { LoginSchema } from "$lib/model/User.svelte.js";
+
     let redirectTo = $derived(page.url.searchParams.get("redirectTo"));
     login.fields.userName.set(page.url.searchParams.get("defUserName") ?? "");
+
 </script>
 
 <div class="container p-4">
     <MainTitle title="Вход в систему" />
 
     <form
-        {...login.enhance(async ({ form, data, submit }) => {
-            if (await submit()) {
-                if (!login.result?.error) {
-                    form.reset();
-                    goto(data.redirectTo);
-                    showInfo("Вы вошли!");
+        {...login
+            .preflight(LoginSchema)
+            .enhance(async ({ form, data, submit }) => {
+                if (await submit()) {
+                    if (!login.result?.error) {
+                        form.reset();
+                        goto(data.redirectTo);
+                        showInfo("Вы вошли!");
+                    }
                 }
-            }
-        })}
+            })}
+        oninput={() => login.validate()}
     >
         <fieldset disabled={login.pending > 0}>
-            <input {...login.fields.redirectTo.as("hidden", redirectTo ?? '/')} />
+            <input
+                {...login.fields.redirectTo.as("hidden", redirectTo ?? "/")}
+            />
 
             {#if login.result?.error}
                 <div class="box">

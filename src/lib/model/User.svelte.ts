@@ -1,3 +1,5 @@
+import * as v from "valibot";
+
 export type User = {
     id: number | null;
     name: string | null;
@@ -32,3 +34,15 @@ export type CreateUserRequest = {
 export type LogoutResponse = {
     success: boolean,
 }
+
+export const LoginSchema = v.object({
+    userName: v.pipe(
+        v.string(),
+        v.minLength(3, "Минимальное число символов 3"),
+    ),
+    password: v.pipe(
+        v.string(),
+        v.minLength(4, "Минимальное число символов 4"),
+    ),
+    redirectTo: v.pipe(v.string()),
+});
