@@ -38,11 +38,11 @@ export type LogoutResponse = {
 export const LoginSchema = v.object({
     userName: v.pipe(
         v.string(),
-        v.minLength(3, "Минимальное число символов 3"),
+        v.regex(/^[a-zA-Z][a-zA-Z0-9_]{2,15}$/, 'Начинается с буквы, за которой следуют буквы, цифры или подчеркивания.')
     ),
     password: v.pipe(
         v.string(),
-        v.minLength(4, "Минимальное число символов 4"),
+        v.regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/, "Минимум 8 символов, как минимум одна заглавная буква, одна строчная буква, одна цифра и один специальный символ."),
     ),
     redirectTo: v.pipe(v.string()),
 });
