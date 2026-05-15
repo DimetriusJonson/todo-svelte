@@ -18,7 +18,6 @@
                 if (await submit()) {
                     if (!createUser.result?.error) {
                         form.reset();
-                        goto("/login?defUserName=" + data.userName);
                         showInfo(data.userName + " успешно создан.");
                     }
                 }

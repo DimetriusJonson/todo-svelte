@@ -20,11 +20,10 @@
     <form
         {...login
             .preflight(LoginSchema)
-            .enhance(async ({ form, data, submit }) => {
+            .enhance(async ({ form, submit }) => {
                 if (await submit()) {
                     if (!login.result?.error) {
                         form.reset();
-                        goto(data.redirectTo);
                         showInfo("Вы вошли!");
                     }
                 }
