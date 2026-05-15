@@ -4,7 +4,7 @@
     import Button from "$lib/components/Button.svelte";
     import MainTitle from "$lib/components/MainTitle.svelte";
     import { showInfo } from "$lib/store/messages.svelte";
-    import { createUser } from "./data.remote.js";
+    import { createUser } from "$lib/remote/user.remote";
 </script>
 
 <div class="container p-4">

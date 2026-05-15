@@ -4,8 +4,8 @@
     import { showInfo } from "$lib/store/messages.svelte.js";
     import Button from "$lib/components/Button.svelte";
     import ButtonLink from "$lib/components/ButtonLink.svelte";
-    import { deleteTask, getTask } from "./data.remote.js";
     import type { Task } from "$lib/model/Task.svelte.js";
+    import { deleteTask, getTask } from "$lib/remote/task.remote.js";
 
     let { params } = $props();
 

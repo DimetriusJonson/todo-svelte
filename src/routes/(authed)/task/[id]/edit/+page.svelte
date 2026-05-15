@@ -1,11 +1,15 @@
 <script lang="ts">
     import MainTitle from "$lib/components/MainTitle.svelte";
     import TaskEditForm from "$lib/composite/TaskEditForm.svelte";
+    import type { Task } from "$lib/model/Task.svelte.js";
+    import { getTask, updateTask } from "$lib/remote/task.remote.js";
 
-    let { data, form } = $props();
+    let { params, data } = $props();
+
+    const task = $derived(await getTask(params.id) as Task);
 </script>
 
 <div class="container p-4">
     <MainTitle title={"Редактировать задачу"} />
-    <TaskEditForm {data} {form} action="update" />
+    <TaskEditForm {data} task={task} sourceForm={updateTask} />
 </div>

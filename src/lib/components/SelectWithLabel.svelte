@@ -7,6 +7,7 @@
         options,
         value = $bindable(),
         onChange = (e: Event) => {},
+        errors = [],
     } = $props();
 </script>
 
@@ -18,3 +19,6 @@
     notSelectedText={"Не выбран"}
     {onChange}
 />
+{#each errors as issue}
+    <p class="help is-danger px-4">{issue.message}</p>
+{/each}

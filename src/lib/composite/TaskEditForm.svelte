@@ -6,57 +6,34 @@
     import TextArea from "$lib/components/TextArea.svelte";
     import TextWithError from "$lib/components/TextWithError.svelte";
     import { showInfo } from "$lib/store/messages.svelte";
-    import { apiInProgressGlobal } from "$lib/store/settings.svelte";
-    import { enhance } from "$app/forms";
-    import {
-        isTaskCompleted,
-        MIN_COMPLETED_AT,
-        taskFromJson,
-    } from "$lib/model/Task.svelte";
-    import { type ApiError } from "$lib/api/ApiCommon.svelte";
-    import { onMount } from "svelte";
-
-    let { data = {}, form, action } = $props();
-
-    let onServerRedirectTo = $derived('/task/');
-    onMount(() => onServerRedirectTo = '');
-
+        
+    let { data, sourceForm, task } = $props();
 </script>
 
 <form
-    method="POST"
-    action="?/{action}"
-    use:enhance={() => {
-        apiInProgressGlobal.value = true;
-        return async ({ result, update }) => {
-            await update();
-            apiInProgressGlobal.value = false;
-            if (result.type === "success") {
-                let savedTask = taskFromJson(result.data?.task);
+    {...sourceForm.enhance(async ({ form, submit }) => {
+        if (await submit()) {
+            if (sourceForm.result?.task) {
+                form.reset();
                 showInfo("Задача сохранена");
-                goto("/task/" + savedTask.id);
-            } else if (result.type === "failure") {
-                let error = result.data?.error as ApiError;
-                if (error.unAuthorized) {
-                    goto("/login");
-                }
             }
-        };
-    }}
+        }
+    })}
 >
-    <fieldset disabled={apiInProgressGlobal.value}>
-        <input type="hidden" name="id" value={data.task?.id} />
-        <input type="hidden" name="redirectTo" value="{onServerRedirectTo}"/>
-
+    <fieldset disabled={sourceForm.pending > 0}>
+        <input type="hidden" name="id" value={task?.id} />
+        
         <input
             type="hidden"
             name="oldCompleted_at"
-            value={data?.task?.completed_at}
+            value={task?.completed_at}
         />
 
-        {#if form?.error && !form.error.validateErrors}
+        {#if sourceForm.result?.error}
             <div class="box">
-                <span class="message is-danger"> {form.error.message} </span>
+                <span class="message is-danger">
+                    {sourceForm.result?.error.message}
+                </span>
             </div>
         {/if}
 
@@ -64,10 +41,10 @@
             <div class="level-left">
                 <div class="level-item">
                     <SelectWithLabel
-                        name="priority"
+                        {...sourceForm.fields.priority.as("text", task?.priority)}
                         label={"Приоритет:"}
-                        value={form?.task?.priority ?? data?.task?.priority ?? "C"}
                         options={data.priorities}
+                        errors={sourceForm.fields.priority.issues()}
                     />
                 </div>
             </div>
@@ -75,39 +52,33 @@
             <div class="level-right">
                 <div class="level-item">
                     <CheckboxWithLabel
-                        name="completed"
+                        {...sourceForm.fields.completed.as("checkbox", task?.completed)}
                         label="Завершена"
-                        value={isTaskCompleted(
-                            form?.task?.completed_at ??
-                                data?.task?.completed_at ??
-                                MIN_COMPLETED_AT,
-                        )}
                     />
                 </div>
             </div>
         </div>
-
         <div class="field">
             <TextWithError
-                name="title"
+                {...sourceForm.fields.title.as("text", task?.title)}
                 placeholder="Название"
-                value={form?.task?.title ?? data?.task?.title ?? ""}
-                error={form?.error?.validateErrors?.get("title")}
+                errors={sourceForm.fields.title.issues()}
             />
         </div>
+
         <div class="field">
             <TextArea
-                name="description"
+                {...sourceForm.fields.description.as("text", task?.description)}
                 placeholder="Описание"
-                value={form?.task?.description ?? data?.task?.description ?? ""}
             />
         </div>
+
         <div class="field is-grouped">
             <div class="control">
                 <Button
                     className="is-primary"
                     label="Сохранить"
-                    loading={apiInProgressGlobal.value}
+                    loading={sourceForm.pending > 0}
                 />
             </div>
             <div class="control">
@@ -116,13 +87,13 @@
                     label="Отмена"
                     onclick={(event: MouseEvent) => {
                         event.preventDefault();
-                        if (data?.task?.id) {
-                            goto("/task/" + data?.task?.id);
+                        if (task?.id) {
+                            goto("/task/" + task?.id);
                         } else {
                             goto("/");
                         }
                     }}
-                    loading={apiInProgressGlobal.value}
+                    loading={sourceForm.pending > 0}
                 />
             </div>
         </div>

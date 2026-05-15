@@ -4,7 +4,7 @@
         value = $bindable(),
         placeholder = "",
         inputType = "",
-        error = "",
+        errors = [],
     } = $props();
 </script>
 
@@ -18,6 +18,7 @@
         {placeholder}
     />
 </div>
-{#if error && error.length > 0}
-    <p class="help is-danger">{error}</p>
-{/if}
+
+{#each errors as issue}
+    <p class="help is-danger">{issue.message}</p>
+{/each}

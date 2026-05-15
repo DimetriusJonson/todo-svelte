@@ -5,6 +5,8 @@ import type { ApiResponse } from "./ApiCommon.svelte";
 import { getCurrentUser } from "./ApiUserDb";
 import db from "$lib/server/db";
 
+const GET_TASK_BY_TITLE_SQL = db.prepare("SELECT * FROM tasks WHERE upper(title) = ? and user_id=? and deleted_at is null and id != ?");
+
 const GET_TASK_SQL = db.prepare("SELECT * FROM tasks WHERE id = ? and user_id=?");
 
 const GET_TASKS_SQL = db.prepare("SELECT * FROM tasks WHERE deleted_at is null and user_id=?");
@@ -26,6 +28,25 @@ const DELETE_TASK_SQL = db.prepare(
     "where id = @id and user_id=@userId");
 
 export class ApiTaskDb implements ApiTask {
+    async getTaskByTitle(input: string, ignoreId: number, params: any) {
+        let user = await getCurrentUser(params);
+        if (!user) {
+            return null;
+        }
+
+        const row: any = GET_TASK_BY_TITLE_SQL.get(input.toUpperCase(), user.id, ignoreId);
+        if (row) {
+            return {
+                id: row.id,
+                title: row.title,
+                description: row.description,
+                priority: row.priority,
+                completed_at: row.completed_at
+            } as Task;
+        }
+
+        return null;
+    }
 
     async get(params: any, id: number): Promise<ApiResponse<Task>> {
         let user = await getCurrentUser(params);
