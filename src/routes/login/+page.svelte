@@ -7,6 +7,7 @@
     import { goto } from "$app/navigation";
     import { LoginSchema } from "$lib/model/User.svelte.js";
     import { login } from "$lib/remote/user.remote";
+    import TextWithError from "$lib/components/TextWithError.svelte";
 
     let redirectTo = $derived(page.url.searchParams.get("redirectTo"));
     login.fields.userName.set(page.url.searchParams.get("defUserName") ?? "");
@@ -44,31 +45,19 @@
             {/if}
 
             <div class="field">
-                <div class="control">
-                    <input
-                        {...login.fields.userName.as("text")}
-                        class={"input " +
-                            (login.fields.userName.issues() ? "is-danger" : "")}
-                        placeholder="Имя пользователя"
-                    />
-                </div>
-                {#each login.fields.userName.issues() as issue}
-                    <p class="help is-danger">{issue.message}</p>
-                {/each}
+                <TextWithError
+                    {...login.fields.userName.as("text")}
+                    placeholder="Имя пользователя"
+                    errors={login.fields.userName.issues()}
+                />
             </div>
 
             <div class="field">
-                <div class="control">
-                    <input
-                        {...login.fields.password.as("password")}
-                        class={"input " +
-                            (login.fields.password.issues() ? "is-danger" : "")}
-                        placeholder="Пароль"
-                    />
-                </div>
-                {#each login.fields.password.issues() as issue}
-                    <p class="help is-danger">{issue.message}</p>
-                {/each}
+                <TextWithError
+                    {...login.fields.password.as("password")}
+                    placeholder="Пароль"
+                    errors={login.fields.password.issues()}
+                />
             </div>
 
             <div class="buttons">

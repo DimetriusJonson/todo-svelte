@@ -5,6 +5,7 @@
     import MainTitle from "$lib/components/MainTitle.svelte";
     import { showInfo } from "$lib/store/messages.svelte";
     import { createUser } from "$lib/remote/user.remote";
+    import TextWithError from "$lib/components/TextWithError.svelte";
 </script>
 
 <div class="container p-4">
@@ -38,33 +39,20 @@
             {/if}
 
             <div class="field">
-                <div class="control">
-                    <input
-                        {...createUser.fields.userName.as("text")}
-                        class={"input " +
-                            (createUser.fields.userName.issues() ? "is-danger" : "")}
-                        placeholder="Имя пользователя"
-                    />
-                </div>
-                {#each createUser.fields.userName.issues() as issue}
-                    <p class="help is-danger">{issue.message}</p>
-                {/each}
+                <TextWithError
+                    {...createUser.fields.userName.as("text")}
+                    placeholder="Имя пользователя"
+                    errors={createUser.fields.userName.issues()}
+                />
             </div>
 
             <div class="field">
-                <div class="control">
-                    <input
-                        {...createUser.fields.password.as("password")}
-                        class={"input " +
-                            (createUser.fields.password.issues() ? "is-danger" : "")}
-                        placeholder="Пароль"
-                    />
-                </div>
-                {#each createUser.fields.password.issues() as issue}
-                    <p class="help is-danger">{issue.message}</p>
-                {/each}
+                <TextWithError
+                    {...createUser.fields.password.as("password")}
+                    placeholder="Пароль"
+                    errors={createUser.fields.password.issues()}
+                />
             </div>
-
 
             <div class="field">
                 <div class="control">
