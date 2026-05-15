@@ -24,6 +24,10 @@ const GET_USER_BY_TOKEN_SQL = db.prepare("SELECT * FROM Users WHERE token = ? an
 
 
 export class ApiUserDb implements ApiUser {
+    getUserByName(name: string): Promise<User | null> {
+        throw new Error("Method not implemented.");
+    }
+    
     parseToken(params: any): AuthData | null {
         let value = params.cookies.get(SECURITY_COOKIE_NAME);
         if (value) {

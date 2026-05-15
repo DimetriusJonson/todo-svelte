@@ -9,6 +9,15 @@ import { apiUser, type ApiUser } from "./ApiUser";
 import sql from "$lib/server/neonDb";
 
 export class ApiUserNeonDb implements ApiUser {
+    async getUserByName(name: string): Promise<User | null> {
+        let rows = await sql`SELECT id FROM users WHERE upper(username)=${name.toUpperCase()} and deleted_at is null`;
+        if (rows && rows.length > 0) {
+            return { id: rows[0].id, name: rows[0].username } as User;
+        }
+
+        return null;
+    }
+
     parseToken(params: any): AuthData | null {
         let value = params.cookies.get(SECURITY_COOKIE_NAME);
         if (value) {

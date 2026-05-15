@@ -1,11 +1,15 @@
 import type { AuthData } from "$lib/model/AuthData.svelte";
-import type { CreateUserRequest, CreateUserResponse, LoginRequest, LoginResponse, LogoutResponse, UsersResponse } from "$lib/model/User.svelte";
+import type { CreateUserRequest, CreateUserResponse, LoginRequest, LoginResponse, LogoutResponse, User, UsersResponse } from "$lib/model/User.svelte";
 import { SECURITY_COOKIE_NAME } from "$lib/store/settings.svelte";
 import type { Cookies } from "@sveltejs/kit";
 import { fetchData, makeRequest, type ApiResponse } from "./ApiCommon.svelte";
 import type { ApiUser } from "./ApiUser";
 
 export class ApiUserRemote implements ApiUser {
+    getUserByName(name: string): Promise<User | null> {
+        throw new Error("Method not implemented.");
+    }
+    
     parseToken(params: any): AuthData | null {
         let value = params.cookies.get(SECURITY_COOKIE_NAME);
         if (value) {
