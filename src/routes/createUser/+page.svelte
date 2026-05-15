@@ -5,11 +5,6 @@
     import MainTitle from "$lib/components/MainTitle.svelte";
     import { showInfo } from "$lib/store/messages.svelte";
     import { createUser } from "./data.remote.js";
-
-    let { form } = $props();
-
-    let redirectTo = $derived('/login?defUserName=');
-
 </script>
 
 <div class="container p-4">
@@ -31,7 +26,7 @@
     >
         <fieldset disabled={createUser.pending > 0}>
             <input
-                {...createUser.fields.redirectTo.as("hidden", redirectTo ?? "/")}
+                {...createUser.fields.redirectTo.as("hidden", '/login?defUserName=')}
             />
 
             {#if createUser.result?.error}

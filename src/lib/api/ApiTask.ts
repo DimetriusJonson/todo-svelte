@@ -12,8 +12,8 @@ export interface ApiTask {
 //import { ApiTaskRemote } from "./ApiTaskRemote";
 //export const apiTask = new ApiTaskRemote();
 
-//import { ApiTaskDb } from "./ApiTaskDb";
-//export const apiTask = new ApiTaskDb();
+import { ApiTaskDb } from "./ApiTaskDb";
+export const apiTask = new ApiTaskDb();
 
-import { ApiTaskNeonDb } from "./ApiTaskNeonDb";
-export const apiTask = new ApiTaskNeonDb();
+//import { ApiTaskNeonDb } from "./ApiTaskNeonDb";
+//export const apiTask = new ApiTaskNeonDb();

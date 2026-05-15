@@ -1,4 +1,3 @@
-/*
 import Database from "better-sqlite3";
 import { env } from '$env/dynamic/private';
 
@@ -28,4 +27,3 @@ const CREATE_TASKS_SQL = `CREATE TABLE IF NOT EXISTS tasks (
 
 db.exec(CREATE_USERS_SQL);
 db.exec(CREATE_TASKS_SQL);
-*/

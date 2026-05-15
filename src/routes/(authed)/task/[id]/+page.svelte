@@ -1,18 +1,15 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import { taskPriorityName } from "$lib/TaskHelper.svelte";
-    import { apiInProgressGlobal } from "$lib/store/settings.svelte";
-    import { enhance } from "$app/forms";
-    import { showError, showInfo } from "$lib/store/messages.svelte.js";
-    import { type ApiError } from "$lib/api/ApiCommon.svelte.js";
+    import { showInfo } from "$lib/store/messages.svelte.js";
     import Button from "$lib/components/Button.svelte";
-    import { onMount } from "svelte";
     import ButtonLink from "$lib/components/ButtonLink.svelte";
+    import { deleteTask, getTask } from "./data.remote.js";
+    import type { Task } from "$lib/model/Task.svelte.js";
 
-    let { params, data } = $props();
+    let { params } = $props();
 
-    let onServerRedirectTo = $derived("/");
-    onMount(() => (onServerRedirectTo = ""));
+    const task = $derived(await getTask(params.id) as Task);
 </script>
 
 <div class="container p-4">
@@ -24,7 +21,7 @@
         <div class="message-body">
             <div class="media">
                 <div class="media-left">
-                    {#if data.task?.completed}
+                    {#if task?.completed}
                         <span class="is-size-3">{"✅"}</span>
                     {:else}
                         <span class="is-size-3">{"❌"}</span>
@@ -32,17 +29,17 @@
                 </div>
                 <div>
                     <p class="title is-size-4 is-size-6-mobile">
-                        {data.task?.title}
+                        {task?.title}
                     </p>
                     <p class="subtitle is-6">
-                        {taskPriorityName(data.task ?? {})}
+                        {taskPriorityName(task ?? {})}
                     </p>
                 </div>
             </div>
 
             <div class="content">
-                {#if data.task?.description}
-                    <p>{data.task?.description}</p>
+                {#if task?.description}
+                    <p>{task?.description}</p>
                 {/if}
             </div>
 
@@ -53,34 +50,28 @@
                     label="Изменить"
                 />
                 <form
-                    method="POST"
-                    action="?/delete"
-                    use:enhance={() => {
-                        apiInProgressGlobal.value = true;
-                        return async ({ update, result }) => {
-                            await update({ invalidateAll: false });
-                            apiInProgressGlobal.value = false;
-                            if (result.type == "success") {
-                                showInfo("Задача удалена.");
+                    {...deleteTask.enhance(async ({ submit }) => {
+                        if (await submit()) {
+                            if (!deleteTask.result?.error) {
                                 goto("/");
-                            } else if (result.type == "failure") {
-                                let error = result.data?.error as ApiError;
-                                showError(error.message);
+                                showInfo("Задача удалена.");
                             }
-                        };
-                    }}
+                        }
+                    })}
                 >
+                    <input type="hidden" name="id" value={params.id} />
+
                     <input
                         type="hidden"
                         name="redirectTo"
-                        value={onServerRedirectTo}
+                        value={'/'}
                     />
 
                     <Button
                         className="is-danger is-size-7-mobile"
                         label="Удалить"
-                        disabled={apiInProgressGlobal.value}
-                        loading={apiInProgressGlobal.value}
+                        disabled={deleteTask.pending > 0}
+                        loading={deleteTask.pending > 0}
                     />
                 </form>
             </div>

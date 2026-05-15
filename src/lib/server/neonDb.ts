@@ -1,3 +1,4 @@
+/*
 import { neon } from '@neondatabase/serverless';
 import { env } from '$env/dynamic/private';
 
@@ -36,3 +37,4 @@ async function create_tables() {
   CONSTRAINT fk_users FOREIGN KEY (user_id) REFERENCES users(id)
 );`
 }
+*/
