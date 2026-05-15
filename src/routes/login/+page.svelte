@@ -4,7 +4,6 @@
     import { page } from "$app/state";
     import ButtonLink from "$lib/components/ButtonLink.svelte";
     import { showInfo } from "$lib/store/messages.svelte.js";
-    import { goto } from "$app/navigation";
     import { LoginSchema } from "$lib/model/User.svelte.js";
     import { login } from "$lib/remote/user.remote";
     import TextWithError from "$lib/components/TextWithError.svelte";
