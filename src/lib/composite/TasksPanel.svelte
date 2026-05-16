@@ -13,52 +13,34 @@
 
   let { tasks }: Props = $props();
 
-  function priorityStyle(task: Task) {
-    if (task.priority) {
-      switch (task.priority) {
-        case "C":
-          return "critical";
-        case "H":
-          return "high";
-        case "N":
-          return "normal";
-        default:
-          return "low";
-      }
-    } else {
-      return "gray";
-    }
-  }
-
   let changeCompletedInProgress = $state(true);
   onMount(() => {
     changeCompletedInProgress = false;
   });
 
-  async function changeCompleted(task: Task, info: any) {
+  async function onChangeCompleted(info: any) {
     changeCompletedInProgress = true;
     try {
       let result = await changeCompletedTask({
-        id: task.id ?? 0,
-        completed: !task.completed,
+        id: parseInt(
+          info.target.name.substring(info.target.name.indexOf("_") + 1),
+        ),
+        completed: info.target.checked,
       });
       if (!result?.error) {
         let savedTask = taskFromJson(result?.task);
         let foundTask = tasks.find((t) => t.id === savedTask.id);
         if (foundTask) {
           foundTask.completed_at = savedTask.completed_at;
+          foundTask.completed = savedTask.completed;
         }
-        info.target.checked = savedTask.completed;
+
         showInfo("Задача сохранена.");
       } else {
-        let oldTask = taskFromJson(result?.task);
+        info.target.checked = !info.target.checked;
         let error = result?.error as ApiError;
-
-        task.completed = oldTask.completed;
         showError(error.message);
       }
-    } catch (error: any) {
-      showError(error.toString());
     } finally {
       changeCompletedInProgress = false;
     }
@@ -78,20 +60,18 @@
     {#if tasks.length > 0}
       {#each tasks as task (task.id)}
         <tr>
-          <td class={priorityStyle(task)}
-            >{priorityName(task.priority ?? "")}</td
-          >
+          <td>{priorityName(task.priority ?? "")}</td>
           <td>
             <input type="hidden" name="id" value={task.id} />
             <Checkbox
               className="is-medium"
-              name={"completed"}
+              name={"completed_" + task.id}
               value={task.completed}
               title={task.completed_at
                 ? new Date(task.completed_at).toLocaleString()
                 : ""}
               disabled={changeCompletedInProgress}
-              onChange={async (info: any) => await changeCompleted(task, info)}
+              onChange={onChangeCompleted}
             />
           </td>
           <td
