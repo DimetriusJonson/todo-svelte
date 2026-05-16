@@ -30,14 +30,12 @@
     }
   }
 
-  let completedCheckboxes = new Map();
-
   let changeCompletedInProgress = $state(true);
   onMount(() => {
     changeCompletedInProgress = false;
   });
 
-  async function changeCompleted(task: Task) {
+  async function changeCompleted(task: Task, info: any) {
     changeCompletedInProgress = true;
     try {
       let result = await changeCompletedTask({
@@ -50,8 +48,7 @@
         if (foundTask) {
           foundTask.completed_at = savedTask.completed_at;
         }
-        let checkbox = completedCheckboxes.get(savedTask.id);
-        checkbox.checked = savedTask.completed;
+        info.target.checked = savedTask.completed;
         showInfo("Задача сохранена.");
       } else {
         let oldTask = taskFromJson(result?.task);
@@ -87,10 +84,6 @@
           <td>
             <input type="hidden" name="id" value={task.id} />
             <Checkbox
-              bind:inputRef={
-                () => completedCheckboxes.get(task.id),
-                (value) => completedCheckboxes.set(task.id, value)
-              }
               className="is-medium"
               name={"completed"}
               value={task.completed}
@@ -98,7 +91,7 @@
                 ? new Date(task.completed_at).toLocaleString()
                 : ""}
               disabled={changeCompletedInProgress}
-              onChange={async () => await changeCompleted(task)}
+              onChange={async (info: any) => await changeCompleted(task, info)}
             />
           </td>
           <td
