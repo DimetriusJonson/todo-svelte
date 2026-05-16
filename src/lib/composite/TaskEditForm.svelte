@@ -1,6 +1,7 @@
 <script lang="ts">
     import { goto } from "$app/navigation";
     import Button from "$lib/components/Button.svelte";
+    import ButtonLink from "$lib/components/ButtonLink.svelte";
     import CheckboxWithLabel from "$lib/components/CheckboxWithLabel.svelte";
     import SelectWithLabel from "$lib/components/SelectWithLabel.svelte";
     import TextArea from "$lib/components/TextArea.svelte";
@@ -85,18 +86,10 @@
                 />
             </div>
             <div class="control">
-                <Button
+                <ButtonLink
                     className="is-light"
                     label="Отмена"
-                    onclick={(event: MouseEvent) => {
-                        event.preventDefault();
-                        if (task?.id) {
-                            goto("/task/" + task?.id);
-                        } else {
-                            goto("/");
-                        }
-                    }}
-                    loading={sourceForm.pending > 0}
+                    href={task?.id ? "/task/" + task?.id : "/"}
                 />
             </div>
         </div>
