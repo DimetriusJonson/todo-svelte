@@ -4,12 +4,12 @@
     import type { Task } from "$lib/model/Task.svelte.js";
     import { getTask, updateTask } from "$lib/remote/task.remote.js";
 
-    let { params, data } = $props();
+    let { params } = $props();
 
-    const task = $derived(await getTask(params.id) as Task);
+    const task = $derived((await getTask(params.id)) as Task);
 </script>
 
 <div class="container p-4">
     <MainTitle title={"Редактировать задачу"} />
-    <TaskEditForm {data} task={task} sourceForm={updateTask} />
+    <TaskEditForm {task} sourceForm={updateTask} />
 </div>

@@ -1,8 +1,8 @@
-import { form, getRequestEvent, query } from "$app/server";
+import { form, getRequestEvent, prerender, query } from "$app/server";
 import { apiTask } from "$lib/api/ApiTask";
 import { taskFromJson, type Task } from "$lib/model/Task.svelte";
 import { TaskServerSchema } from "$lib/model/TaskServerSchema";
-import { buildTaskCompletedAt } from "$lib/TaskHelper.svelte";
+import { buildTaskCompletedAt, priorityName } from "$lib/TaskHelper.svelte";
 import { redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
 
@@ -68,3 +68,16 @@ export const updateTask = form(TaskServerSchema, async ({ id, title, priority, c
         return { error: result.error };
     }
 });
+
+export const getPriorities = prerender(async () => {
+	return [
+        priorityToOption("C"),
+        priorityToOption("H"),
+        priorityToOption("N"),
+        priorityToOption("L"),
+    ];
+});
+
+function priorityToOption(priority: string) {
+    return { value: priority, text: priorityName(priority) };
+}

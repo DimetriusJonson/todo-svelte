@@ -5,9 +5,12 @@
     import SelectWithLabel from "$lib/components/SelectWithLabel.svelte";
     import TextArea from "$lib/components/TextArea.svelte";
     import TextWithError from "$lib/components/TextWithError.svelte";
+    import { getPriorities } from "$lib/remote/task.remote";
     import { showInfo } from "$lib/store/messages.svelte";
         
-    let { data, sourceForm, task } = $props();
+    let { sourceForm, task } = $props();
+
+    let priorities = await getPriorities();
 </script>
 
 <form
@@ -43,7 +46,7 @@
                     <SelectWithLabel
                         {...sourceForm.fields.priority.as("text", task?.priority)}
                         label={"Приоритет:"}
-                        options={data.priorities}
+                        options={priorities}
                         errors={sourceForm.fields.priority.issues()}
                     />
                 </div>
