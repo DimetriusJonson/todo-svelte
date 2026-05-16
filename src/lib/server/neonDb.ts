@@ -1,6 +1,3 @@
-//import { neon } from '@neondatabase/serverless';
-import postgres from 'postgres'
-
 import { env } from '$env/dynamic/private';
 
 const sql = await createNeonDb();
@@ -29,9 +26,12 @@ async function create_tables(sql: any) {
 );`
 }
 
+import { neon } from '@neondatabase/serverless';
+//import postgres from 'postgres'
+
 async function createNeonDb() {
-  //const sql = neon(env.DATABASE_URL);
-  const sql = postgres(env.DATABASE_URL);
+  const sql = neon(env.DATABASE_URL);
+  //const sql = postgres(env.DATABASE_URL);
 
   await create_tables(sql);
   return sql;
