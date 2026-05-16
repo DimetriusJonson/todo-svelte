@@ -84,7 +84,7 @@ export class ApiTaskNeonDb implements ApiTask {
         }
 
         if (create) {
-            let rows = await sql`SELECT id FROM tasks WHERE upper(title)=${title?.toUpperCase()} and user_id=${userId} and deleted_at is null`;
+            let rows = await sql`SELECT id FROM tasks WHERE upper(title)=${title?.toUpperCase() ?? null} and user_id=${userId} and deleted_at is null`;
             if (rows && rows.length > 0) {
                 errorsMap.set('title', 'Задача с таким именем уже существует!');
             }
@@ -113,11 +113,11 @@ export class ApiTaskNeonDb implements ApiTask {
 
         try {
             await sql`UPDATE tasks 
-                SET title=COALESCE(${patch.title}, title),
-                    description=COALESCE(${patch.description}, description),
-                    priority=COALESCE(${patch.priority}, priority),
-                    completed_at=COALESCE(${patch.completed_at}, completed_at)
-                where id = ${patch.id} and user_id=${user.id}`;
+                SET title=COALESCE(${patch.title ?? null}, title),
+                    description=COALESCE(${patch.description ?? null}, description),
+                    priority=COALESCE(${patch.priority ?? null}, priority),
+                    completed_at=COALESCE(${patch.completed_at ?? null}, completed_at)
+                where id = ${patch.id ?? null} and user_id=${user.id}`;
             return { success: true, status: 200, error: null, responseData: patch };
         } catch (error: any) {
             return { success: false, status: 500, responseData: null, error: { message: error.toString() } }
@@ -136,7 +136,8 @@ export class ApiTaskNeonDb implements ApiTask {
         }
 
         try {
-            let rows = await sql`INSERT INTO tasks(title, description, priority, completed_at, user_id) VALUES(${task.title}, ${task.description}, ${task.priority}, ${task.completed_at}, ${user.id}) RETURNING id`;
+            let rows = await sql`INSERT INTO tasks(title, description, priority, completed_at, user_id) 
+                VALUES(${task.title ?? null}, ${task.description ?? null}, ${task.priority ?? null}, ${task.completed_at ?? null}, ${user.id}) RETURNING id`;
             return { success: true, status: 200, error: null, responseData: { ...task, id: rows[0].id } };
         } catch (error: any) {
             return { success: false, status: 500, responseData: null, error: { message: error.toString() } }
