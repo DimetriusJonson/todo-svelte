@@ -1,9 +1,9 @@
-import { form, getRequestEvent, prerender, query } from "$app/server";
+import { command, form, getRequestEvent, prerender, query } from "$app/server";
 import { apiTask } from "$lib/api/ApiTask";
-import { taskFromJson, type Task } from "$lib/model/Task.svelte";
+import { MIN_COMPLETED_AT, taskFromJson, type Task } from "$lib/model/Task.svelte";
 import { TaskServerSchema } from "$lib/model/TaskServerSchema";
-import { buildTaskCompletedAt, priorityName } from "$lib/TaskHelper.svelte";
-import { redirect } from '@sveltejs/kit';
+import { buildTaskCompletedAt, filterTask, priorityName, sortTask } from "$lib/TaskHelper.svelte";
+import { error, redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
 
 const DeleteTaskSchema = v.objectAsync({
@@ -69,8 +69,28 @@ export const updateTask = form(TaskServerSchema, async ({ id, title, priority, c
     }
 });
 
+export const changeCompletedTask = command(v.object({
+    id: v.number(),
+    completed: v.boolean()
+}), async ({ id, completed }) => {
+    const event = getRequestEvent();
+
+    let patch: Task = {
+        id: id,
+        completed_at: completed ? new Date().toISOString() : MIN_COMPLETED_AT,
+    };
+
+    let result = await apiTask.update({ cookies: event.cookies }, patch);
+    if (!result.success) {
+        return { task: { completed: completed }, error: result.error };
+    }
+
+    return { task: result.responseData };
+});
+
+
 export const getPriorities = prerender(async () => {
-	return [
+    return [
         priorityToOption("C"),
         priorityToOption("H"),
         priorityToOption("N"),
@@ -78,6 +98,69 @@ export const getPriorities = prerender(async () => {
     ];
 });
 
+export const getFilterOptions = prerender(async () => {
+    return [
+        filterToOption("Completed"),
+        filterToOption("Uncompleted"),
+    ];
+});
+
+export const getSortOptions = prerender(async () => {
+    return [sortToOption("Title"), sortToOption("Priority")];
+});
+
+export const getTasks = query(
+    v.object({
+        filter: v.pipe(v.nullable(v.string())),
+        sortKind: v.pipe(v.nullable(v.string()))
+    }
+    ), async ({ filter, sortKind }) => {
+        const event = getRequestEvent();
+
+        let resp = await apiTask.getList({ cookies: event.cookies });
+        if (resp.success && resp.responseData) {
+            return buildTasks(resp.responseData.data, filter, sortKind);
+        } else {
+            error(resp.status, resp.error?.message);
+        }
+    });
+
+function buildTasks(tasks: Task[], filter: string | null, sortKind: string | null): Task[] {
+    let result: Task[] = [];
+    tasks.forEach(task => result.push(taskFromJson(task)));
+
+    return result
+        .filter((t: Task) =>
+            filterTask(t, filter ?? ""),
+        )
+        .sort((task1: Task, task2: Task) =>
+            sortTask(task1, task2, sortKind ?? ""),
+        );
+}
+
+
 function priorityToOption(priority: string) {
     return { value: priority, text: priorityName(priority) };
+}
+
+function filterToOption(filter: string) {
+    switch (filter) {
+        case "Completed":
+            return { value: filter, text: "Завершенные" };
+        case "Uncompleted":
+            return { value: filter, text: "Незавершенные" };
+        default:
+            return { value: null, text: "Не выбран" };
+    }
+}
+
+function sortToOption(sortKind: string) {
+    switch (sortKind) {
+        case "Title":
+            return { value: sortKind, text: "Название" };
+        case "Priority":
+            return { value: sortKind, text: "Приоритет" };
+        default:
+            return { value: null, text: "Не выбран" };
+    }
 }

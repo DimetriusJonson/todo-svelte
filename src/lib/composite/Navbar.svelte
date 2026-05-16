@@ -4,6 +4,7 @@
     import { type ApiError } from "$lib/api/ApiCommon.svelte";
     import Button from "$lib/components/Button.svelte";
     import ButtonLink from "$lib/components/ButtonLink.svelte";
+    import { logout } from "$lib/remote/user.remote";
     import { showError, showInfo } from "$lib/store/messages.svelte";
     import { apiInProgressGlobal } from "$lib/store/settings.svelte";
     import { onMount } from "svelte";
@@ -56,25 +57,15 @@
                 {#if authData?.userName}
                     <div class="navbar-item">
                         <form
-                            method="POST"
-                            action="/?/logout"
-                            use:enhance={() => {
-                                apiInProgressGlobal.value = true;
-                                return async ({ result, update }) => {
-                                    await update();
-                                    apiInProgressGlobal.value = false;
-                                    if (result.type === "success") {
+                            {...logout.enhance(async ({ submit }) => {
+                                if (await submit()) {
+                                    if (!logout.result?.error) {
                                         showInfo("Вы вышли!");
-                                    } else if (result.type == "failure") {
-                                        let error = result.data
-                                            ?.error as ApiError;
-                                        showError(error.message);
+                                    } else {
+                                        showError(logout.result?.error.message);
                                     }
-                                    goto("/", {
-                                        invalidateAll: true,
-                                    });
-                                };
-                            }}
+                                }
+                            })}
                         >
                             <input
                                 type="hidden"
@@ -84,7 +75,7 @@
                             <Button
                                 className="is-warning is-light"
                                 label={"Выйти " + authData.userName}
-                                loading={apiInProgressGlobal.value}
+                                loading={logout.pending > 0}
                             />
                         </form>
                     </div>

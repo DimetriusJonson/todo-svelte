@@ -1,7 +1,8 @@
 import { form, getRequestEvent } from "$app/server";
 import { apiUser } from '$lib/api/ApiUser';
 import { LoginSchema, passwordValidateRegExp, userNameValidateRegExp, type CreateUserRequest, type LoginRequest } from '$lib/model/User.svelte';
-import { redirect } from '@sveltejs/kit';
+import { deleteOnServerSecurityCookie } from "$lib/store/settings.svelte";
+import { error, redirect } from '@sveltejs/kit';
 import * as v from "valibot";
 
 const isUserNameExist = async (input: string) => {
@@ -42,4 +43,16 @@ export const createUser = form(CreateUserServerSchema, async ({ userName, passwo
     } else {
         return { error: result.error };
     }
+});
+
+export const logout = form(async () => {
+    const event = getRequestEvent();
+
+    let result = await apiUser.logout({ cookies: event.cookies });
+    if (!result.success && !result.error?.unAuthorized) {
+        return {error: result.error};
+    }
+
+    deleteOnServerSecurityCookie(event.cookies);
+    redirect(302, '/');
 });

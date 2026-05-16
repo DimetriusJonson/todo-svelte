@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { enhance } from "$app/forms";
   import { type ApiError } from "$lib/api/ApiCommon.svelte";
   import { taskFromJson, type Task } from "$lib/model/Task.svelte";
   import { priorityName } from "$lib/TaskHelper.svelte";
   import Checkbox from "$lib/components/Checkbox.svelte";
   import { showError, showInfo } from "$lib/store/messages.svelte";
-  import { apiInProgressGlobal } from "$lib/store/settings.svelte";
-    import { onMount } from "svelte";
+  import { onMount } from "svelte";
+  import { changeCompletedTask } from "$lib/remote/task.remote";
 
   interface Props {
     tasks: Task[];
@@ -31,13 +30,42 @@
     }
   }
 
-  let completedForms = new Map();
   let completedCheckboxes = new Map();
 
-  let init = $state(true);
+  let changeCompletedInProgress = $state(true);
   onMount(() => {
-    init = false;
+    changeCompletedInProgress = false;
   });
+
+  async function changeCompleted(task: Task) {
+    changeCompletedInProgress = true;
+    try {
+      let result = await changeCompletedTask({
+        id: task.id ?? 0,
+        completed: !task.completed,
+      });
+      if (!result?.error) {
+        let savedTask = taskFromJson(result?.task);
+        let foundTask = tasks.find((t) => t.id === savedTask.id);
+        if (foundTask) {
+          foundTask.completed_at = savedTask.completed_at;
+        }
+        let checkbox = completedCheckboxes.get(savedTask.id);
+        checkbox.checked = savedTask.completed;
+        showInfo("Задача сохранена.");
+      } else {
+        let oldTask = taskFromJson(result?.task);
+        let error = result?.error as ApiError;
+
+        task.completed = oldTask.completed;
+        showError(error.message);
+      }
+    } catch (error: any) {
+      showError(error.toString());
+    } finally {
+      changeCompletedInProgress = false;
+    }
+  }
 </script>
 
 <table class="table is-striped is-fullwidth">
@@ -57,54 +85,27 @@
             >{priorityName(task.priority ?? "")}</td
           >
           <td>
-            <form
-              bind:this={
-                () => completedForms.get(task.id), (value) => completedForms.set(task.id, value)
+            <input type="hidden" name="id" value={task.id} />
+            <Checkbox
+              bind:inputRef={
+                () => completedCheckboxes.get(task.id),
+                (value) => completedCheckboxes.set(task.id, value)
               }
-              method="POST"
-              action="?/changeCompleted"
-              use:enhance={() => {
-                apiInProgressGlobal.value = true;
-                return async ({ update, result }) => {
-                  await update({ invalidateAll: false });
-                  apiInProgressGlobal.value = false;
-                  if (result.type === "success") {
-                    let savedTask = taskFromJson(result.data?.task);
-                    let foundTask = tasks.find((t) => t.id === savedTask.id);
-                    if (foundTask) {
-                      foundTask.completed_at = savedTask.completed_at;
-                    }
-                    let checkbox = completedCheckboxes.get(savedTask.id);
-                    checkbox.checked = savedTask.completed;
-                    showInfo("Задача сохранена.");
-                  } else if (result.type == "failure") {
-                    let oldTask = taskFromJson(result.data?.task);
-                    let error = result.data?.error as ApiError;
-
-                    task.completed = oldTask.completed;
-                    showError(error.message);
-                  }
-                };
-              }}
-            >
-              <input type="hidden" name="id" value={task.id} />
-              <Checkbox
-                bind:inputRef={
-                  () => completedCheckboxes.get(task.id),
-                  (value) => completedCheckboxes.set(task.id, value)
-                }
-                className="is-medium"
-                name={"completed"}
-                value={task.completed}
-                title={task.completed_at
-                  ? new Date(task.completed_at).toLocaleString()
-                  : ""}
-                disabled={apiInProgressGlobal.value || init}
-                onChange={() => completedForms.get(task.id).requestSubmit()}
-              />
-            </form>
+              className="is-medium"
+              name={"completed"}
+              value={task.completed}
+              title={task.completed_at
+                ? new Date(task.completed_at).toLocaleString()
+                : ""}
+              disabled={changeCompletedInProgress}
+              onChange={async () => await changeCompleted(task)}
+            />
           </td>
-          <td><a href={"/task/" + task.id} aria-label={task.title}>{task.title}</a></td>
+          <td
+            ><a href={"/task/" + task.id} aria-label={task.title}
+              >{task.title}</a
+            ></td
+          >
           <td class="is-hidden-mobile">{task.description}</td>
         </tr>
       {/each}

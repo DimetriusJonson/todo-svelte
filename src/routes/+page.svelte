@@ -9,6 +9,11 @@
     import { page } from "$app/state";
     import { onMount } from "svelte";
     import ButtonLink from "$lib/components/ButtonLink.svelte";
+    import {
+        getFilterOptions,
+        getSortOptions,
+        getTasks,
+    } from "$lib/remote/task.remote.js";
 
     let { data } = $props();
 
@@ -24,7 +29,7 @@
     );
 
     let filteredTasks = $derived(
-        (data.tasks ?? [])
+        (await getTasks({ filter: filterSelect, sortKind: sortSelect }))
             .filter((t: Task) =>
                 filterTask(t, tasksSettings.value.filter ?? ""),
             )
@@ -43,7 +48,7 @@
                     name="filterSelect"
                     notSelectedText="Фильтр"
                     value={filterSelect ?? tasksSettings.value.filter}
-                    options={data.filterOptions}
+                    options={await getFilterOptions()}
                     onChange={(value: string) => {
                         tasksSettings.value.filter = value;
                         tasksSettings.saveValue();
@@ -54,7 +59,7 @@
                     name="sortSelect"
                     notSelectedText="Сортировка"
                     value={sortSelect ?? tasksSettings.value.sortKind}
-                    options={data.sortOptions}
+                    options={await getSortOptions()}
                     onChange={(value: string) => {
                         tasksSettings.value.sortKind = value;
                         tasksSettings.saveValue();
