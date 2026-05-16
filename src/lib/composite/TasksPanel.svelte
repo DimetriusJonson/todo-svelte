@@ -6,6 +6,7 @@
   import Checkbox from "$lib/components/Checkbox.svelte";
   import { showError, showInfo } from "$lib/store/messages.svelte";
   import { apiInProgressGlobal } from "$lib/store/settings.svelte";
+    import { onMount } from "svelte";
 
   interface Props {
     tasks: Task[];
@@ -32,6 +33,11 @@
 
   let completedForms = new Map();
   let completedCheckboxes = new Map();
+
+  let init = $state(true);
+  onMount(() => {
+    init = false;
+  });
 </script>
 
 <table class="table is-striped is-fullwidth">
@@ -93,7 +99,7 @@
                 title={task.completed_at
                   ? new Date(task.completed_at).toLocaleString()
                   : ""}
-                disabled={apiInProgressGlobal.value}
+                disabled={apiInProgressGlobal.value || init}
                 onChange={() => completedForms.get(task.id).requestSubmit()}
               />
             </form>
