@@ -5,30 +5,30 @@ import type { ApiResponse } from "./ApiCommon.svelte";
 import { getCurrentUser } from "./ApiUserDb";
 import db from "$lib/server/db";
 
-const GET_TASK_BY_TITLE_SQL = db.prepare("SELECT * FROM tasks WHERE upper(title) = ? and user_id=? and deleted_at is null and id != ?");
+const GET_TASK_BY_TITLE_SQL = db.prepare(`SELECT * FROM tasks WHERE upper(title) = ? and user_id=? and deleted_at is null and id != ?`);
 
-const GET_TASK_SQL = db.prepare("SELECT * FROM tasks WHERE id = ? and user_id=?");
+const GET_TASK_SQL = db.prepare(`SELECT * FROM tasks WHERE id = ? and user_id=?`);
 
-const GET_TASKS_SQL = db.prepare("SELECT * FROM tasks WHERE deleted_at is null and user_id=?");
+const GET_TASKS_SQL = db.prepare(`SELECT * FROM tasks WHERE deleted_at is null and user_id=?`);
 
 const UPDATE_TASK_SQL = db.prepare(
-    "UPDATE tasks " +
-    "SET title=COALESCE(@title, title), " +
-    "    description=COALESCE(@description, description), " +
-    "    priority=COALESCE(@priority, priority), " +
-    "    completed_at=COALESCE(@completed_at, completed_at) " +
-    "where id = @id and user_id=@userId");
+    `UPDATE tasks
+    SET title=COALESCE(@title, title),
+        description=COALESCE(@description, description),
+        priority=COALESCE(@priority, priority),
+        completed_at=COALESCE(@completed_at, completed_at)
+    where id = @id and user_id=@userId`);
 
 const INSERT_TASK_SQL = db.prepare(
-    "INSERT INTO tasks(title, description, priority, completed_at, user_id) VALUES(@title, @description, @priority, @completed_at, @userId) RETURNING id");
+    `INSERT INTO tasks(title, description, priority, completed_at, user_id) VALUES(@title, @description, @priority, @completed_at, @userId) RETURNING id`);
 
 const DELETE_TASK_SQL = db.prepare(
-    "UPDATE tasks " +
-    "SET deleted_at=CURRENT_TIMESTAMP " +
-    "where id = @id and user_id=@userId");
+    `UPDATE tasks 
+    SET deleted_at=CURRENT_TIMESTAMP 
+    where id = @id and user_id=@userId`);
 
 export class ApiTaskDb implements ApiTask {
-    async getTaskByTitle(input: string, ignoreId: number, params: any) {
+    async getTaskByTitle(input: string, ignoreId: number, params: any): Promise<Task | null> {
         let user = await getCurrentUser(params);
         if (!user) {
             return null;
@@ -133,7 +133,7 @@ export class ApiTaskDb implements ApiTask {
         }
 
         try {
-            let deleteInfo = DELETE_TASK_SQL.run({id: id, userId: user.id});
+            let deleteInfo = DELETE_TASK_SQL.run({ id: id, userId: user.id });
             if (deleteInfo.changes > 0) {
                 return { success: true, status: 200, responseData: true, error: null };
             } else {

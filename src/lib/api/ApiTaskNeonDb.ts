@@ -7,6 +7,27 @@ import sql from "$lib/server/neonDb";
 
 export class ApiTaskNeonDb implements ApiTask {
 
+    async getTaskByTitle(input: string, ignoreId: number, params: any): Promise<Task | null> {
+        let user = await getCurrentUser(params);
+        if (!user) {
+            return null;
+        }
+
+        const rows = await sql`SELECT * FROM tasks WHERE upper(title) = ${input.toUpperCase()} and user_id=${user.id} and deleted_at is null and id != ${ignoreId}`;
+        if (rows && rows.length > 0) {
+            let row = rows[0];
+            return {
+                id: row.id,
+                title: row.title,
+                description: row.description,
+                priority: row.priority,
+                completed_at: row.completed_at
+            } as Task;
+        }
+
+        return null;
+    }
+
     async get(params: any, id: number): Promise<ApiResponse<Task>> {
         let user = await getCurrentUser(params);
         if (!user) {

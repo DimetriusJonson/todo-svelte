@@ -3,6 +3,10 @@ import { fetchData, makeRequest, type ApiResponse } from "./ApiCommon.svelte";
 import type { ApiTask } from "./ApiTask";
 
 export class ApiTaskRemote implements ApiTask {
+    async getTaskByTitle(input: string, ignoreId: number, params: any): Promise<Task | null> {
+        return null;
+    }
+
     async delete(params: any, id: number): Promise<ApiResponse<boolean>> {
         return makeRequest<boolean>('/tasks/' + id, 'DELETE', null, params.cookies);
     }

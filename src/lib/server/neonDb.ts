@@ -1,23 +1,12 @@
-/*
 import { neon } from '@neondatabase/serverless';
 import { env } from '$env/dynamic/private';
 
-const sql = neon(env.DATABASE_URL);
+const sql = await createNeonDb();
 
 export default sql;
 
-create_tables();
-
-export async function load() {
-    const response = await sql`SELECT version()`;
-    const { version } = response[0];
-    return {
-        version,
-    };
-}
-
-async function create_tables() {
-    await sql`CREATE TABLE IF NOT EXISTS users (
+async function create_tables(sql: any) {
+  await sql`CREATE TABLE IF NOT EXISTS users (
   id          SERIAL PRIMARY KEY,
   username    VARCHAR(64) NOT NULL UNIQUE,
   password    VARCHAR(64) NOT NULL,
@@ -25,7 +14,7 @@ async function create_tables() {
   token       TEXT DEFAULT NULL
 );`;
 
-    await sql`CREATE TABLE IF NOT EXISTS tasks (
+  await sql`CREATE TABLE IF NOT EXISTS tasks (
   id            SERIAL PRIMARY KEY,
   priority      VARCHAR(4) DEFAULT NULL,
   title         VARCHAR(255) NOT NULL,
@@ -37,4 +26,9 @@ async function create_tables() {
   CONSTRAINT fk_users FOREIGN KEY (user_id) REFERENCES users(id)
 );`
 }
-*/
+
+async function createNeonDb() {
+  const sql = neon(env.DATABASE_URL);
+  await create_tables(sql);
+  return sql;
+}

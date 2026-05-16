@@ -1,7 +1,7 @@
-import Database from "better-sqlite3";
 import { env } from '$env/dynamic/private';
+import Database from 'better-sqlite3';
 
-const db = new Database(env.DATABASE_URL);
+const db = /*createDb()*/null;
 
 export default db;
 
@@ -25,5 +25,9 @@ const CREATE_TASKS_SQL = `CREATE TABLE IF NOT EXISTS tasks (
   CONSTRAINT fk_users FOREIGN KEY (user_id) REFERENCES users(id)
 );`;
 
-db.exec(CREATE_USERS_SQL);
-db.exec(CREATE_TASKS_SQL);
+function createDb() {
+  const db = new Database(env.DATABASE_URL);
+  db.exec(CREATE_USERS_SQL);
+  db.exec(CREATE_TASKS_SQL);
+  return db;
+}
