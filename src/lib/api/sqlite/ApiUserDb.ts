@@ -5,7 +5,7 @@ import db from "$lib/server/db";
 import { createJwtToken, parseJwtToken } from "$lib/server/jwt";
 import { SECURITY_COOKIE_NAME } from "$lib/store/settings.svelte";
 import type { Cookies } from "@sveltejs/kit";
-import { apiUser, type ApiUser } from "../ApiUser";
+import { type ApiUser } from "../ApiUser";
 import type { ApiResponse } from "../apiTypes";
 
 const GET_USERS_SQL = db.prepare(
@@ -20,21 +20,7 @@ const UPDATE_USER_TOKEN_SQL = db.prepare(
 const INSERT_USER_SQL = db.prepare(
     "INSERT INTO users(username, password) VALUES(@username, @password) RETURNING id");
 
-const GET_USER_BY_TOKEN_SQL = db.prepare("SELECT * FROM Users WHERE token = ? and deleted_at is null");
-
-
 export class ApiUserDb implements ApiUser {
-    async getCurrentUser(params: any): Promise<User | null> {
-        let authData = params.parent ? (await params.parent()).authData : apiUser.parseToken(params);
-        if (authData) {
-            const row: any = GET_USER_BY_TOKEN_SQL.get(authData.token);
-            if (row) {
-                return { id: row.id, name: row.username } as User;
-            }
-        }
-        return null;
-    }
-
     getUserByName(name: string): Promise<User | null> {
         throw new Error("Method not implemented.");
     }

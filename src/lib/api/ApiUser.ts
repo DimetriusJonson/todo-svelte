@@ -10,7 +10,6 @@ export interface ApiUser {
     parseToken(params: any): AuthData | null;
     saveAuthDataAsCookie(cookies: Cookies, authData: AuthData): void;
     getUserByName(name: string): Promise<User | null>;
-    getCurrentUser(params: any): Promise<User | null>;
 }
 
 //import { ApiUserRemote } from "./remote/ApiUserRemote";

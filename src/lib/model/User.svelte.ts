@@ -3,7 +3,6 @@ import * as v from "valibot";
 export type User = {
     id: number | null;
     name: string | null;
-    token: string | null;
 };
 
 export type UsersResponse = {

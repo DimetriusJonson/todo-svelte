@@ -133,17 +133,5 @@ export class ApiUserNeonDb implements ApiUser {
             return { success: false, status: 500, responseData: null, error: { message: error.toString() } }
         }
     }
-
-    async getCurrentUser(params: any): Promise<User | null> {
-        if (params.authData) {
-            const rows: any = await sql`SELECT * FROM Users WHERE token = ${params.authData.token} and deleted_at is null`;
-            if (rows && rows.length > 0) {
-                let row = rows[0];
-                return { id: row.id, name: row.username } as User;
-            }
-        }
-        return null;
-    }
-
 }
 
