@@ -1,7 +1,6 @@
 <script>
 	import { page } from "$app/state";
-	import MainTitle from "../lib/components/MainTitle.svelte";
-</script>
+	</script>
 
 <section class="section">
 	<div class="box has-text-centered">
