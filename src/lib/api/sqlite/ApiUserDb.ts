@@ -24,14 +24,21 @@ const GET_USER_BY_TOKEN_SQL = db.prepare("SELECT * FROM Users WHERE token = ? an
 
 
 export class ApiUserDb implements ApiUser {
-    getCurrentUser(params: any): Promise<User | null> {
-        throw new Error("Method not implemented.");
+    async getCurrentUser(params: any): Promise<User | null> {
+        let authData = params.parent ? (await params.parent()).authData : apiUser.parseToken(params);
+        if (authData) {
+            const row: any = GET_USER_BY_TOKEN_SQL.get(authData.token);
+            if (row) {
+                return { id: row.id, name: row.username } as User;
+            }
+        }
+        return null;
     }
-    
+
     getUserByName(name: string): Promise<User | null> {
         throw new Error("Method not implemented.");
     }
-    
+
     parseToken(params: any): AuthData | null {
         let value = params.cookies.get(SECURITY_COOKIE_NAME);
         if (value) {
@@ -116,16 +123,5 @@ export class ApiUserDb implements ApiUser {
             return { success: false, status: 500, responseData: null, error: { message: error.toString() } }
         }
     }
-}
-
-export async function getCurrentUser(params: any): Promise<User | null> {
-    let authData = params.parent ? (await params.parent()).authData : apiUser.parseToken(params);
-    if (authData) {
-        const row: any = GET_USER_BY_TOKEN_SQL.get(authData.token);
-        if (row) {
-            return { id: row.id, name: row.username } as User;
-        }
-    }
-    return null;
 }
 
