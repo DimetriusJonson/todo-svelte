@@ -10,11 +10,11 @@ export interface ApiTask {
     getTaskByTitle(input: string, ignoreId: number, params: any): Promise<Task | null>;
 }
 
-//import { ApiTaskRemote } from "./ApiTaskRemote";
+//import { ApiTaskRemote } from "./remote/ApiTaskRemote";
 //export const apiTask = new ApiTaskRemote();
 
-//import { ApiTaskDb } from "./ApiTaskDb";
+//import { ApiTaskDb } from "./sqlite/ApiTaskDb";
 //export const apiTask = new ApiTaskDb();
 
-import { ApiTaskNeonDb } from "./ApiTaskNeonDb";
+import { ApiTaskNeonDb } from "./postgres/ApiTaskNeonDb";
 export const apiTask = new ApiTaskNeonDb();

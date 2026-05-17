@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { goto } from "$app/navigation";
     import Button from "$lib/components/Button.svelte";
     import ButtonLink from "$lib/components/ButtonLink.svelte";
     import CheckboxWithLabel from "$lib/components/CheckboxWithLabel.svelte";
@@ -8,25 +7,27 @@
     import TextWithError from "$lib/components/TextWithError.svelte";
     import { getPriorities } from "$lib/remote/task.remote";
     import { showInfo } from "$lib/store/messages.svelte";
-        
+
     let { sourceForm, task } = $props();
 
     let priorities = await getPriorities();
 </script>
 
 <form
-    {...sourceForm.enhance(async ({ form, submit }) => {
-        if (await submit()) {
-            if (sourceForm.result?.task) {
-                form.reset();
-                showInfo("Задача сохранена");
+    {...sourceForm.enhance(
+        async ({ form, submit }: { form: HTMLFormElement; submit: any }) => {
+            if (await submit()) {
+                if (sourceForm.result?.task) {
+                    form.reset();
+                    showInfo("Задача сохранена");
+                }
             }
-        }
-    })}
+        },
+    )}
 >
     <fieldset disabled={sourceForm.pending > 0}>
         <input type="hidden" name="id" value={task?.id} />
-        
+
         <input
             type="hidden"
             name="oldCompleted_at"
@@ -45,7 +46,10 @@
             <div class="level-left">
                 <div class="level-item">
                     <SelectWithLabel
-                        {...sourceForm.fields.priority.as("text", task?.priority)}
+                        {...sourceForm.fields.priority.as(
+                            "text",
+                            task?.priority,
+                        )}
                         label={"Приоритет:"}
                         options={priorities}
                         errors={sourceForm.fields.priority.issues()}
@@ -56,7 +60,10 @@
             <div class="level-right">
                 <div class="level-item">
                     <CheckboxWithLabel
-                        {...sourceForm.fields.completed.as("checkbox", task?.completed)}
+                        {...sourceForm.fields.completed.as(
+                            "checkbox",
+                            task?.completed,
+                        )}
                         label="Завершена"
                     />
                 </div>

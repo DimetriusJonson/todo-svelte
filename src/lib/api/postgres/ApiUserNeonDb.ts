@@ -4,8 +4,8 @@ import { checkPassword, hashPassword } from "$lib/server/crypt";
 import { createJwtToken, parseJwtToken } from "$lib/server/jwt";
 import { SECURITY_COOKIE_NAME } from "$lib/store/settings.svelte";
 import type { Cookies } from "@sveltejs/kit";
-import type { ApiResponse } from "./ApiCommon.svelte";
-import { apiUser, type ApiUser } from "./ApiUser";
+import type { ApiResponse } from "../ApiCommon.svelte";
+import { apiUser, type ApiUser } from "../ApiUser";
 import sql from "$lib/server/neonDb";
 
 export class ApiUserNeonDb implements ApiUser {
@@ -137,9 +137,8 @@ export class ApiUserNeonDb implements ApiUser {
 }
 
 export async function getCurrentUser(params: any): Promise<User | null> {
-    let authData = params.parent ? (await params.parent()).authData : apiUser.parseToken(params);
-    if (authData) {
-        const rows: any = await sql`SELECT * FROM Users WHERE token = ${authData.token} and deleted_at is null`;
+    if (params.authData) {
+        const rows: any = await sql`SELECT * FROM Users WHERE token = ${params.authData.token} and deleted_at is null`;
         if (rows && rows.length > 0) {
             let row = rows[0];
             return { id: row.id, name: row.username } as User;

@@ -5,8 +5,8 @@ import db from "$lib/server/db";
 import { createJwtToken, parseJwtToken } from "$lib/server/jwt";
 import { SECURITY_COOKIE_NAME } from "$lib/store/settings.svelte";
 import type { Cookies } from "@sveltejs/kit";
-import type { ApiResponse } from "./ApiCommon.svelte";
-import { apiUser, type ApiUser } from "./ApiUser";
+import type { ApiResponse } from "../ApiCommon.svelte";
+import { apiUser, type ApiUser } from "../ApiUser";
 
 const GET_USERS_SQL = db.prepare(
     "SELECT * FROM users WHERE deleted_at is null");

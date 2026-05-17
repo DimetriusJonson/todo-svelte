@@ -13,11 +13,11 @@ export interface ApiUser {
     getUserByName(name: string): Promise<User | null>;
 }
 
-//import { ApiUserRemote } from "./ApiUserRemote";
+//import { ApiUserRemote } from "./remote/ApiUserRemote";
 //export const apiUser = new ApiUserRemote();
 
-//import { ApiUserDb } from "./ApiUserDb";
+//import { ApiUserDb } from "./sqlite/ApiUserDb";
 //export const apiUser = new ApiUserDb();
 
-import { ApiUserNeonDb } from "./ApiUserNeonDb";
+import { ApiUserNeonDb } from "./postgres/ApiUserNeonDb";
 export const apiUser = new ApiUserNeonDb();

@@ -16,7 +16,7 @@ export const createTask = form(TaskServerSchema, async ({ title, priority, compl
 
     let completed_at = buildTaskCompletedAt(completed ? true : false, oldCompleted_at);
 
-    let result = await apiTask.create({ cookies: event.cookies }, {
+    let result = await apiTask.create({ authData: event.locals.authData }, {
         title, priority, completed_at, description
     } as Task);
     if (result.success) {
@@ -30,7 +30,7 @@ export const createTask = form(TaskServerSchema, async ({ title, priority, compl
 export const getTask = query(v.string(), async (id) => {
     const event = getRequestEvent();
 
-    let resp = await apiTask.get({ cookies: event.cookies }, parseInt(id));
+    let resp = await apiTask.get({ authData: event.locals.authData }, parseInt(id));
     if (resp.success) {
         return taskFromJson(resp.responseData);
     }
@@ -40,7 +40,7 @@ export const getTask = query(v.string(), async (id) => {
 export const deleteTask = form(DeleteTaskSchema, async ({ id, redirectTo }) => {
     const event = getRequestEvent();
 
-    let result = await apiTask.delete({ cookies: event.cookies }, parseInt(id));
+    let result = await apiTask.delete({ authData: event.locals.authData }, parseInt(id));
     if (result.success) {
         if (redirectTo) {
             redirect(302, redirectTo);
@@ -57,7 +57,7 @@ export const updateTask = form(TaskServerSchema, async ({ id, title, priority, c
 
     let completed_at = buildTaskCompletedAt(completed ? true : false, oldCompleted_at);
 
-    let result = await apiTask.update({ cookies: event.cookies }, {
+    let result = await apiTask.update({ authData: event.locals.authData }, {
         id: parseInt(id), title, priority, completed_at, description
     } as Task);
 
@@ -80,7 +80,7 @@ export const changeCompletedTask = command(v.object({
         completed_at: completed ? new Date().toISOString() : MIN_COMPLETED_AT,
     };
 
-    let result = await apiTask.update({ cookies: event.cookies }, patch);
+    let result = await apiTask.update({ authData: event.locals.authData }, patch);
     if (!result.success) {
         return { task: { completed: completed }, error: result.error };
     }
@@ -117,7 +117,7 @@ export const getTasks = query(
     ), async ({ filter, sortKind }) => {
         const event = getRequestEvent();
 
-        let resp = await apiTask.getList({ cookies: event.cookies });
+        let resp = await apiTask.getList({ authData: event.locals.authData });
         if (resp.success && resp.responseData) {
             return buildTasks(resp.responseData.data, filter, sortKind);
         } else {
