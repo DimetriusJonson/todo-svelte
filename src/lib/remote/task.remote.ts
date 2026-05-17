@@ -22,9 +22,8 @@ export const createTask = form(TaskServerSchema, async ({ title, priority, compl
     if (result.success) {
         let task = result.responseData as Task;
         redirect(302, '/task/' + task.id);
-    } else {
-        return { error: result.error };
     }
+    error(result.status, result.error?.message);
 });
 
 export const getTask = query(v.string(), async (id) => {
@@ -47,9 +46,8 @@ export const deleteTask = form(DeleteTaskSchema, async ({ id, redirectTo }) => {
         } else {
             return { success: true };
         }
-    } else {
-        return { error: result.error };
     }
+    error(result.status, result.error?.message);
 });
 
 export const updateTask = form(TaskServerSchema, async ({ id, title, priority, completed, oldCompleted_at, description }) => {
@@ -64,9 +62,8 @@ export const updateTask = form(TaskServerSchema, async ({ id, title, priority, c
     if (result.success) {
         let task = result.responseData as Task;
         redirect(302, '/task/' + task.id);
-    } else {
-        return { error: result.error };
     }
+    error(result.status, result.error?.message);
 });
 
 export const changeCompletedTask = command(v.object({
@@ -81,11 +78,10 @@ export const changeCompletedTask = command(v.object({
     };
 
     let result = await apiTask.update({ user: event.locals.user }, patch);
-    if (!result.success) {
-        return { task: { completed: completed }, error: result.error };
+    if (result.success) {
+        return { task: result.responseData };
     }
-
-    return { task: result.responseData };
+    error(result.status, result.error?.message);
 });
 
 

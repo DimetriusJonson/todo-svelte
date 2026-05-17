@@ -15,7 +15,7 @@
 
 <form
     {...sourceForm.enhance(
-        async ({ form, submit }: { form: HTMLFormElement; submit: any }) => {
+        async ({ submit }: { form: HTMLFormElement; submit: any }) => {
             if (await submit()) {
                 if (sourceForm.result?.task) {
                     showInfo("Задача сохранена");
