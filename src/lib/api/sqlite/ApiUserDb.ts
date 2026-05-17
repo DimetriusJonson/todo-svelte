@@ -24,6 +24,10 @@ const GET_USER_BY_TOKEN_SQL = db.prepare("SELECT * FROM Users WHERE token = ? an
 
 
 export class ApiUserDb implements ApiUser {
+    getCurrentUser(params: any): Promise<User | null> {
+        throw new Error("Method not implemented.");
+    }
+    
     getUserByName(name: string): Promise<User | null> {
         throw new Error("Method not implemented.");
     }

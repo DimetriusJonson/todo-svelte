@@ -7,6 +7,10 @@ import type { ApiUser } from "../ApiUser";
 import type { ApiResponse } from "../apiTypes";
 
 export class ApiUserRemote implements ApiUser {
+    getCurrentUser(params: any): Promise<User | null> {
+        throw new Error("Method not implemented.");
+    }
+    
     getUserByName(name: string): Promise<User | null> {
         throw new Error("Method not implemented.");
     }
