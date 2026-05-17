@@ -1,7 +1,6 @@
 import type { Task, TasksResponse } from "$lib/model/Task.svelte";
-import { error, redirect } from "@sveltejs/kit";
+import { error } from "@sveltejs/kit";
 import type { ApiTask } from "./../ApiTask";
-import { getCurrentUser } from "./ApiUserDb";
 import db from "$lib/server/db";
 import type { ApiResponse } from "../apiTypes";
 
@@ -29,12 +28,11 @@ const DELETE_TASK_SQL = db.prepare(
 
 export class ApiTaskDb implements ApiTask {
     async getTaskByTitle(input: string, ignoreId: number, params: any): Promise<Task | null> {
-        let user = await getCurrentUser(params);
-        if (!user) {
+        if (!params.user) {
             return null;
         }
 
-        const row: any = GET_TASK_BY_TITLE_SQL.get(input.toUpperCase(), user.id, ignoreId);
+        const row: any = GET_TASK_BY_TITLE_SQL.get(input.toUpperCase(), params.user.id, ignoreId);
         if (row) {
             return {
                 id: row.id,
@@ -49,12 +47,7 @@ export class ApiTaskDb implements ApiTask {
     }
 
     async get(params: any, id: number): Promise<ApiResponse<Task>> {
-        let user = await getCurrentUser(params);
-        if (!user) {
-            return redirect(302, '/login');
-        }
-
-        const row: any = GET_TASK_SQL.get(id, user.id);
+        const row: any = GET_TASK_SQL.get(id, params.user.id);
         if (row) {
             let task = {
                 id: row.id,
@@ -71,12 +64,7 @@ export class ApiTaskDb implements ApiTask {
     }
 
     async getList(params: any): Promise<ApiResponse<TasksResponse>> {
-        let user = await getCurrentUser(params);
-        if (!user) {
-            return redirect(302, 'login');
-        }
-
-        const dbTasks: any[] = GET_TASKS_SQL.all(user.id);
+        const dbTasks: any[] = GET_TASKS_SQL.all(params.user.id);
 
         let tasks: Task[] = [];
         dbTasks.forEach(dbTask => {
@@ -95,13 +83,12 @@ export class ApiTaskDb implements ApiTask {
     }
 
     async update(params: any, patch: Task): Promise<ApiResponse<Task>> {
-        let user = await getCurrentUser(params);
-        if (!user) {
+        if (!params.user) {
             return { status: 401, success: false, responseData: null, error: { message: 'Unauthorized', unAuthorized: true } };
         }
 
         try {
-            let updateInfo = UPDATE_TASK_SQL.run({ id: patch.id, title: patch.title, description: patch.description, priority: patch.priority, completed_at: patch.completed_at, userId: user.id });
+            let updateInfo = UPDATE_TASK_SQL.run({ id: patch.id, title: patch.title, description: patch.description, priority: patch.priority, completed_at: patch.completed_at, userId: params.user.id });
             if (updateInfo.changes > 0) {
                 return { success: true, status: 200, error: null, responseData: patch };
             } else {
@@ -113,13 +100,12 @@ export class ApiTaskDb implements ApiTask {
     }
 
     async create(params: any, task: Task): Promise<ApiResponse<Task>> {
-        let user = await getCurrentUser(params);
-        if (!user) {
+        if (!params.user) {
             return { status: 401, success: false, responseData: null, error: { message: 'Unauthorized', unAuthorized: true } };
         }
 
         try {
-            let row: any = INSERT_TASK_SQL.get({ id: task.id, title: task.title, description: task.description, priority: task.priority, completed_at: task.completed_at, userId: user.id });
+            let row: any = INSERT_TASK_SQL.get({ id: task.id, title: task.title, description: task.description, priority: task.priority, completed_at: task.completed_at, userId: params.user.id });
             return { success: true, status: 200, error: null, responseData: { ...task, id: row.id } };
         } catch (error: any) {
             return { success: false, status: 500, responseData: null, error: { message: error.toString() } }
@@ -127,13 +113,12 @@ export class ApiTaskDb implements ApiTask {
     }
 
     async delete(params: any, id: number): Promise<ApiResponse<boolean>> {
-        let user = await getCurrentUser(params);
-        if (!user) {
+        if (!params.user) {
             return { status: 401, success: false, responseData: false, error: { message: 'Unauthorized', unAuthorized: true } };
         }
 
         try {
-            let deleteInfo = DELETE_TASK_SQL.run({ id: id, userId: user.id });
+            let deleteInfo = DELETE_TASK_SQL.run({ id: id, userId: params.user.id });
             if (deleteInfo.changes > 0) {
                 return { success: true, status: 200, responseData: true, error: null };
             } else {

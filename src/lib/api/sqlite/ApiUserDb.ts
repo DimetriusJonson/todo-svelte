@@ -108,16 +108,15 @@ export class ApiUserDb implements ApiUser {
 
     async logout(params: any): Promise<ApiResponse<LogoutResponse>> {
         try {
-            let user = await getCurrentUser(params);
-            if (!user) {
+            if (!params.user) {
                 return { success: true, status: 200, error: null, responseData: { success: true } as LogoutResponse };
             }
 
-            let updateInfo = UPDATE_USER_TOKEN_SQL.run({ token: null, id: user.id });
+            let updateInfo = UPDATE_USER_TOKEN_SQL.run({ token: null, id: params.user.id });
             if (updateInfo.changes > 0) {
                 return { success: true, status: 200, error: null, responseData: { success: true } as LogoutResponse };
             } else {
-                return { success: false, status: 404, responseData: null, error: { message: 'Not found user.id=' + user.id } }
+                return { success: false, status: 404, responseData: null, error: { message: 'Not found user.id=' + params.user.id } }
             }
         } catch (error: any) {
             return { success: false, status: 500, responseData: null, error: { message: error.toString() } }
