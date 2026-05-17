@@ -18,9 +18,12 @@
         async ({ form, submit }: { form: HTMLFormElement; submit: any }) => {
             if (await submit()) {
                 if (sourceForm.result?.task) {
-                    form.reset();
                     showInfo("Задача сохранена");
-                }
+                };
+                sourceForm.fields.priority.set(null);
+                sourceForm.fields.completed.set(null);
+                sourceForm.fields.title.set(null);
+                sourceForm.fields.description.set(null);
             }
         },
     )}
