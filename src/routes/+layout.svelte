@@ -42,7 +42,7 @@
 
 <section class="section p-0">
 	<div class="is-paddingless">
-		<Navbar authData={data.authData} />
+		<Navbar user={data.user} />
 		{@render children()}
 		<MessageBanner />
 	</div>

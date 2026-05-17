@@ -123,12 +123,11 @@ export class ApiUserNeonDb implements ApiUser {
 
     async logout(params: any): Promise<ApiResponse<LogoutResponse>> {
         try {
-            let user = await getCurrentUser(params);
-            if (!user) {
+            if (!params.user) {
                 return { success: true, status: 200, error: null, responseData: { success: true } as LogoutResponse };
             }
 
-            await sql`UPDATE users SET token=null WHERE id=${user.id}`;
+            await sql`UPDATE users SET token=null WHERE id=${params.user.id}`;
             return { success: true, status: 200, error: null, responseData: { success: true } as LogoutResponse };
         } catch (error: any) {
             return { success: false, status: 500, responseData: null, error: { message: error.toString() } }

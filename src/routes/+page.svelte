@@ -69,7 +69,7 @@
                     <Button className="is-light is-size-7-mobile" label="Ok" />
                 {/if}
             </span>
-            {#if data.authData}
+            {#if data.user}
                 <ButtonLink
                     className="level-item is-light is-size-7-mobile"
                     href="/task/create"

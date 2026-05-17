@@ -7,7 +7,7 @@
 
     let navLinksActive = $state(true);
 
-    let { authData } = $props();
+    let { user } = $props();
 
     let onServerRedirectTo = $derived("/");
     onMount(() => {
@@ -50,7 +50,7 @@
 
         <div class="navbar-end">
             <div class="buttons">
-                {#if authData?.userName}
+                {#if user?.name}
                     <div class="navbar-item">
                         <form
                             {...logout.enhance(async ({ submit }) => {
@@ -70,7 +70,7 @@
                             />
                             <Button
                                 className="is-warning is-light"
-                                label={"Выйти " + authData.userName}
+                                label={"Выйти " + user.name}
                                 loading={logout.pending > 0}
                             />
                         </form>

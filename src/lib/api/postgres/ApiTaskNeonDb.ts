@@ -1,19 +1,17 @@
 import type { Task, TasksResponse } from "$lib/model/Task.svelte";
-import { error, redirect } from "@sveltejs/kit";
+import { error } from "@sveltejs/kit";
 import type { ApiTask } from "./../ApiTask";
-import { getCurrentUser } from "./ApiUserNeonDb";
 import sql from "$lib/server/neonDb";
 import type { ApiResponse } from "../apiTypes";
 
 export class ApiTaskNeonDb implements ApiTask {
 
     async getTaskByTitle(input: string, ignoreId: number, params: any): Promise<Task | null> {
-        let user = await getCurrentUser(params);
-        if (!user) {
+        if (!params.user) {
             return null;
         }
 
-        const rows = await sql`SELECT * FROM tasks WHERE upper(title) = ${input.toUpperCase()} and user_id=${user.id} and deleted_at is null and id != ${ignoreId}`;
+        const rows = await sql`SELECT * FROM tasks WHERE upper(title) = ${input.toUpperCase()} and user_id=${params.user.id} and deleted_at is null and id != ${ignoreId}`;
         if (rows && rows.length > 0) {
             let row = rows[0];
             return {
@@ -29,12 +27,7 @@ export class ApiTaskNeonDb implements ApiTask {
     }
 
     async get(params: any, id: number): Promise<ApiResponse<Task>> {
-        let user = await getCurrentUser(params);
-        if (!user) {
-            return redirect(302, '/login');
-        }
-
-        const rows = await sql`SELECT * FROM tasks WHERE id = ${id} and user_id=${user.id}`;
+        const rows = await sql`SELECT * FROM tasks WHERE id = ${id} and user_id=${params.user.id}`;
         if (rows && rows.length > 0) {
             let row = rows[0];
             let task = {
@@ -52,12 +45,7 @@ export class ApiTaskNeonDb implements ApiTask {
     }
 
     async getList(params: any): Promise<ApiResponse<TasksResponse>> {
-        let user = await getCurrentUser(params);
-        if (!user) {
-            return redirect(302, 'login');
-        }
-
-        const dbTasks: any[] = await sql`SELECT * FROM tasks WHERE deleted_at is null and user_id=${user.id}`;
+        const dbTasks: any[] = await sql`SELECT * FROM tasks WHERE deleted_at is null and user_id=${params.user.id}`;
 
         let tasks: Task[] = [];
         dbTasks.forEach(dbTask => {
@@ -99,13 +87,12 @@ export class ApiTaskNeonDb implements ApiTask {
 
 
     async update(params: any, patch: Task): Promise<ApiResponse<Task>> {
-        let user = await getCurrentUser(params);
-        if (!user) {
+        if (!params.user) {
             return { status: 401, success: false, responseData: null, error: { message: 'Unauthorized', unAuthorized: true } };
         }
 
         if (patch.title) {
-            let validateErrors = await this.validate<Task>(patch.title, user.id, false);
+            let validateErrors = await this.validate<Task>(patch.title, params.user.id, false);
             if (validateErrors) {
                 return validateErrors;
             }
@@ -117,7 +104,7 @@ export class ApiTaskNeonDb implements ApiTask {
                     description=COALESCE(${patch.description ?? null}, description),
                     priority=COALESCE(${patch.priority ?? null}, priority),
                     completed_at=COALESCE(${patch.completed_at ?? null}, completed_at)
-                where id = ${patch.id ?? null} and user_id=${user.id}`;
+                where id = ${patch.id ?? null} and user_id=${params.user.id}`;
             return { success: true, status: 200, error: null, responseData: patch };
         } catch (error: any) {
             return { success: false, status: 500, responseData: null, error: { message: error.toString() } }
@@ -125,19 +112,18 @@ export class ApiTaskNeonDb implements ApiTask {
     }
 
     async create(params: any, task: Task): Promise<ApiResponse<Task>> {
-        let user = await getCurrentUser(params);
-        if (!user) {
+        if (!params.user) {
             return { status: 401, success: false, responseData: null, error: { message: 'Unauthorized', unAuthorized: true } };
         }
 
-        let validateErrors = await this.validate<Task>(task.title, user.id, true);
+        let validateErrors = await this.validate<Task>(task.title, params.user.id, true);
         if (validateErrors) {
             return validateErrors;
         }
 
         try {
             let rows = await sql`INSERT INTO tasks(title, description, priority, completed_at, user_id) 
-                VALUES(${task.title ?? null}, ${task.description ?? null}, ${task.priority ?? null}, ${task.completed_at ?? null}, ${user.id}) RETURNING id`;
+                VALUES(${task.title ?? null}, ${task.description ?? null}, ${task.priority ?? null}, ${task.completed_at ?? null}, ${params.user.id}) RETURNING id`;
             return { success: true, status: 200, error: null, responseData: { ...task, id: rows[0].id } };
         } catch (error: any) {
             return { success: false, status: 500, responseData: null, error: { message: error.toString() } }
@@ -145,13 +131,12 @@ export class ApiTaskNeonDb implements ApiTask {
     }
 
     async delete(params: any, id: number): Promise<ApiResponse<boolean>> {
-        let user = await getCurrentUser(params);
-        if (!user) {
+        if (!params.user) {
             return { status: 401, success: false, responseData: false, error: { message: 'Unauthorized', unAuthorized: true } };
         }
 
         try {
-            await sql`UPDATE tasks SET deleted_at=CURRENT_TIMESTAMP where id = ${id} and user_id=${user.id}`;
+            await sql`UPDATE tasks SET deleted_at=CURRENT_TIMESTAMP where id = ${id} and user_id=${params.user.id}`;
             return { success: true, status: 200, responseData: true, error: null };
         } catch (error: any) {
             return { success: false, status: 500, responseData: false, error: { message: error.toString() } }
