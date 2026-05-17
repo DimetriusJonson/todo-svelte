@@ -142,7 +142,7 @@ export class ApiUserNeonDb implements ApiUser {
                 return { id: row.id, name: row.username } as User;
             }
         }
-        return {} as User;
+        return null;
     }
 
 }
