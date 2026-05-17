@@ -6,11 +6,7 @@ import sql from "$lib/server/db";
 export class ApiTaskDb implements ApiTask {
 
     async getTaskByTitle(input: string, ignoreId: number, params: any): Promise<Task | null> {
-        if (!params.user) {
-            return null;
-        }
-
-        const rows = await sql`SELECT * FROM tasks WHERE upper(title) = ${input.toUpperCase()} and user_id=${params.user.id} and deleted_at is null and id != ${ignoreId}`;
+        const rows = await sql`SELECT * FROM tasks WHERE upper(title) = ${input.toUpperCase()} and user_id=${params.user?.id ?? null} and deleted_at is null and id != ${ignoreId}`;
         if (rows && rows.length > 0) {
             let row = rows[0];
             return {
@@ -26,7 +22,7 @@ export class ApiTaskDb implements ApiTask {
     }
 
     async get(params: any, id: number): Promise<Task> {
-        const rows = await sql`SELECT * FROM tasks WHERE id = ${id} and user_id=${params.user.id}`;
+        const rows = await sql`SELECT * FROM tasks WHERE id = ${id} and user_id=${params.user?.id ?? null}`;
         if (rows && rows.length > 0) {
             let row = rows[0];
             return {
@@ -42,7 +38,7 @@ export class ApiTaskDb implements ApiTask {
     }
 
     async getList(params: any): Promise<Task[]> {
-        const dbTasks: any[] = await sql`SELECT * FROM tasks WHERE deleted_at is null and user_id=${params.user.id}`;
+        const dbTasks: any[] = await sql`SELECT * FROM tasks WHERE deleted_at is null and user_id=${params.user?.id ?? null}`;
 
         let tasks: Task[] = [];
         dbTasks.forEach(dbTask => {
@@ -66,18 +62,18 @@ export class ApiTaskDb implements ApiTask {
                     description=COALESCE(${patch.description ?? null}, description),
                     priority=COALESCE(${patch.priority ?? null}, priority),
                     completed_at=COALESCE(${patch.completed_at ?? null}, completed_at)
-                where id = ${patch.id ?? null} and user_id=${params.user.id}`;
+                where id = ${patch.id ?? null} and user_id=${params.user?.id ?? null}`;
         return patch;
     }
 
     async create(params: any, task: Task): Promise<Task> {
         let rows = await sql`INSERT INTO tasks(title, description, priority, completed_at, user_id) 
-                VALUES(${task.title ?? null}, ${task.description ?? null}, ${task.priority ?? null}, ${task.completed_at ?? null}, ${params.user.id}) RETURNING id`;
+                VALUES(${task.title ?? null}, ${task.description ?? null}, ${task.priority ?? null}, ${task.completed_at ?? null}, ${params.user?.id ?? null}) RETURNING id`;
         return { ...task, id: rows[0].id };
     }
 
     async delete(params: any, id: number): Promise<boolean> {
-        await sql`UPDATE tasks SET deleted_at=CURRENT_TIMESTAMP where id = ${id} and user_id=${params.user.id}`;
+        await sql`UPDATE tasks SET deleted_at=CURRENT_TIMESTAMP where id = ${id} and user_id=${params.user?.id ?? null}`;
         return true;
     }
 
