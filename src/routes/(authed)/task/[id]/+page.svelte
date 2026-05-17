@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { goto } from "$app/navigation";
     import { taskPriorityName } from "$lib/TaskHelper.svelte";
     import { showInfo } from "$lib/store/messages.svelte.js";
     import Button from "$lib/components/Button.svelte";
@@ -52,20 +51,11 @@
                 <form
                     {...deleteTask.enhance(async ({ submit }) => {
                         if (await submit()) {
-                            if (!deleteTask.result?.error) {
-                                goto("/");
-                                showInfo("Задача удалена.");
-                            }
+                            showInfo("Задача удалена.");
                         }
                     })}
                 >
                     <input type="hidden" name="id" value={params.id} />
-
-                    <input
-                        type="hidden"
-                        name="redirectTo"
-                        value={'/'}
-                    />
 
                     <Button
                         className="is-danger is-size-7-mobile"

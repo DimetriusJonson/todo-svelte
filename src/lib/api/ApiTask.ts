@@ -1,20 +1,13 @@
-import type { Task, TasksResponse } from "$lib/model/Task.svelte";
-import type { ApiResponse } from "./apiTypes";
+import type { Task } from "$lib/model/Task.svelte";
+import { ApiTaskDb } from "./ApiTaskDb";
 
 export interface ApiTask {
-    getList(params: any): Promise<ApiResponse<TasksResponse>>;
-    get(params: any, id: number): Promise<ApiResponse<Task>>;
-    delete(params: any, id: number): Promise<ApiResponse<boolean>>;
-    update(params: any, patch: Task): Promise<ApiResponse<Task>>;
-    create(params: any, task: Task): Promise<ApiResponse<Task>>;
+    getList(params: any): Promise<Task[]>;
+    get(params: any, id: number): Promise<Task>;
+    delete(params: any, id: number): Promise<boolean>;
+    update(params: any, patch: Task): Promise<Task>;
+    create(params: any, task: Task): Promise<Task>;
     getTaskByTitle(input: string, ignoreId: number, params: any): Promise<Task | null>;
 }
 
-//import { ApiTaskRemote } from "./remote/ApiTaskRemote";
-//export const apiTask = new ApiTaskRemote();
-
-//import { ApiTaskDb } from "./sqlite/ApiTaskDb";
-//export const apiTask = new ApiTaskDb();
-
-import { ApiTaskNeonDb } from "./postgres/ApiTaskNeonDb";
-export const apiTask = new ApiTaskNeonDb();
+export const apiTask = new ApiTaskDb();

@@ -1,53 +1,43 @@
 import { command, form, getRequestEvent, prerender, query } from "$app/server";
 import { apiTask } from "$lib/api/ApiTask";
-import { MIN_COMPLETED_AT, taskFromJson, type Task } from "$lib/model/Task.svelte";
+import { isTaskCompleted, MIN_COMPLETED_AT, type Task } from "$lib/model/Task.svelte";
 import { TaskServerSchema } from "$lib/model/TaskServerSchema";
 import { buildTaskCompletedAt, filterTask, priorityName, sortTask } from "$lib/TaskHelper.svelte";
 import { error, redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
-
-const DeleteTaskSchema = v.objectAsync({
-    id: v.pipe(v.string()),
-    redirectTo: v.pipe(v.string()),
-});
 
 export const createTask = form(TaskServerSchema, async ({ title, priority, completed, oldCompleted_at, description }) => {
     const event = getRequestEvent();
 
     let completed_at = buildTaskCompletedAt(completed ? true : false, oldCompleted_at);
 
-    let result = await apiTask.create({ user: event.locals.user }, {
+    let task = await apiTask.create({ user: event.locals.user }, {
         title, priority, completed_at, description
     } as Task);
-    if (result.success) {
-        let task = result.responseData as Task;
-        redirect(302, '/task/' + task.id);
-    }
-    error(result.status, result.error?.message);
+
+    redirect(302, '/task/' + task.id);
 });
 
 export const getTask = query(v.string(), async (id) => {
     const event = getRequestEvent();
 
-    let resp = await apiTask.get({ user: event.locals.user }, parseInt(id));
-    if (resp.success) {
-        return taskFromJson(resp.responseData);
+    let task = await apiTask.get({ user: event.locals.user }, parseInt(id));
+    if (task) {
+        task.completed = isTaskCompleted(task.completed_at);
     }
-    return resp;
+    return task;
 });
 
-export const deleteTask = form(DeleteTaskSchema, async ({ id, redirectTo }) => {
+export const deleteTask = form(v.objectAsync({
+    id: v.pipe(v.string()),
+}), async ({ id }) => {
     const event = getRequestEvent();
 
     let result = await apiTask.delete({ user: event.locals.user }, parseInt(id));
-    if (result.success) {
-        if (redirectTo) {
-            redirect(302, redirectTo);
-        } else {
-            return { success: true };
-        }
+    if (result) {
+        redirect(302, '/');
     }
-    error(result.status, result.error?.message);
+    error(500, 'Cant delete task!');
 });
 
 export const updateTask = form(TaskServerSchema, async ({ id, title, priority, completed, oldCompleted_at, description }) => {
@@ -55,15 +45,11 @@ export const updateTask = form(TaskServerSchema, async ({ id, title, priority, c
 
     let completed_at = buildTaskCompletedAt(completed ? true : false, oldCompleted_at);
 
-    let result = await apiTask.update({ user: event.locals.user }, {
+    let task = await apiTask.update({ user: event.locals.user }, {
         id: parseInt(id), title, priority, completed_at, description
     } as Task);
 
-    if (result.success) {
-        let task = result.responseData as Task;
-        redirect(302, '/task/' + task.id);
-    }
-    error(result.status, result.error?.message);
+    redirect(302, '/task/' + task.id);
 });
 
 export const changeCompletedTask = command(v.object({
@@ -77,11 +63,7 @@ export const changeCompletedTask = command(v.object({
         completed_at: completed ? new Date().toISOString() : MIN_COMPLETED_AT,
     };
 
-    let result = await apiTask.update({ user: event.locals.user }, patch);
-    if (result.success) {
-        return { task: result.responseData };
-    }
-    error(result.status, result.error?.message);
+    return await apiTask.update({ user: event.locals.user }, patch);
 });
 
 
@@ -113,17 +95,16 @@ export const getTasks = query(
     ), async ({ filter, sortKind }) => {
         const event = getRequestEvent();
 
-        let resp = await apiTask.getList({ user: event.locals.user });
-        if (resp.success && resp.responseData) {
-            return buildTasks(resp.responseData.data, filter, sortKind);
-        } else {
-            error(resp.status, resp.error?.message);
-        }
+        let tasks = await apiTask.getList({ user: event.locals.user });
+        return buildTasks(tasks, filter, sortKind);
     });
 
 function buildTasks(tasks: Task[], filter: string | null, sortKind: string | null): Task[] {
     let result: Task[] = [];
-    tasks.forEach(task => result.push(taskFromJson(task)));
+    tasks.forEach(task => {
+        task.completed = isTaskCompleted(task.completed_at);
+        result.push(task);
+    });
 
     return result
         .filter((t: Task) =>
@@ -133,7 +114,6 @@ function buildTasks(tasks: Task[], filter: string | null, sortKind: string | nul
             sortTask(task1, task2, sortKind ?? ""),
         );
 }
-
 
 function priorityToOption(priority: string) {
     return { value: priority, text: priorityName(priority) };

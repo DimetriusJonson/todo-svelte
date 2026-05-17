@@ -2,7 +2,7 @@
     import Button from "$lib/components/Button.svelte";
     import ButtonLink from "$lib/components/ButtonLink.svelte";
     import { logout } from "$lib/remote/user.remote";
-    import { showError, showInfo } from "$lib/store/messages.svelte";
+    import { showInfo } from "$lib/store/messages.svelte";
     import { onMount } from "svelte";
 
     let navLinksActive = $state(true);
@@ -55,11 +55,7 @@
                         <form
                             {...logout.enhance(async ({ submit }) => {
                                 if (await submit()) {
-                                    if (!logout.result?.error) {
-                                        showInfo("Вы вышли!");
-                                    } else {
-                                        showError(logout.result?.error.message);
-                                    }
+                                    showInfo("Вы вышли!");
                                 }
                             })}
                         >

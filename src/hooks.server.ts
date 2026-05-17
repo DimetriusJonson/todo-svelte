@@ -7,10 +7,12 @@ export const handle: Handle = async ({ event, resolve }) => {
     if (building) {
         return await resolve(event);
     }
+    
+    const routeId = event.route.id;
 
     let authData = apiUser.parseToken({ cookies: event.cookies });
     if (!authData) {
-        if (!event.url.pathname.startsWith('/login')) {
+        if (!event.url.pathname.startsWith('/login') && (routeId?.includes('(authed)'))) {
             throw redirect(303, '/login?redirectTo=' + event.url.pathname);
         }
     }

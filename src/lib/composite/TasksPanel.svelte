@@ -1,12 +1,11 @@
 <script lang="ts">
-  import { taskFromJson, type Task } from "$lib/model/Task.svelte";
+  import { type Task } from "$lib/model/Task.svelte";
   import { priorityName } from "$lib/TaskHelper.svelte";
   import Checkbox from "$lib/components/Checkbox.svelte";
   import { showError, showInfo } from "$lib/store/messages.svelte";
   import { onMount } from "svelte";
   import { changeCompletedTask } from "$lib/remote/task.remote";
-  import type { ApiError } from "$lib/api/apiTypes";
-
+  
   interface Props {
     tasks: Task[];
   }
@@ -21,26 +20,23 @@
   async function onChangeCompleted(info: any) {
     changeCompletedInProgress = true;
     try {
-      let result = await changeCompletedTask({
+      let savedTask = await changeCompletedTask({
         id: parseInt(
           info.target.name.substring(info.target.name.indexOf("_") + 1),
         ),
         completed: info.target.checked,
       });
-      if (!result?.error) {
-        let savedTask = taskFromJson(result?.task);
-        let foundTask = tasks.find((t) => t.id === savedTask.id);
-        if (foundTask) {
-          foundTask.completed_at = savedTask.completed_at;
-          foundTask.completed = savedTask.completed;
-        }
 
-        showInfo("Задача сохранена.");
-      } else {
-        info.target.checked = !info.target.checked;
-        let error = result?.error as ApiError;
-        showError(error.message);
+      let foundTask = tasks.find((t) => t.id === savedTask.id);
+      if (foundTask) {
+        foundTask.completed_at = savedTask.completed_at;
+        foundTask.completed = savedTask.completed;
       }
+
+      showInfo("Задача сохранена.");
+    } catch (error: any) {
+      info.target.checked = !info.target.checked;
+      showError(error);
     } finally {
       changeCompletedInProgress = false;
     }
