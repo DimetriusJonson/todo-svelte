@@ -1,7 +1,6 @@
 import { form, getRequestEvent, query } from "$app/server";
 import { apiUser } from '$lib/api/ApiUser';
 import { LoginSchema, passwordValidateRegExp, userNameValidateRegExp, type CreateUserRequest } from '$lib/model/User.svelte';
-import { deleteOnServerSecurityCookie } from "$lib/store/settings.svelte";
 import { invalid, redirect } from '@sveltejs/kit';
 import { error } from "node:console";
 import * as v from "valibot";
@@ -30,7 +29,12 @@ export const login = form(LoginSchema, async ({ userName, password, redirectTo }
     if (!user) {
         invalid(issue.password('Неверное имя пользователя или пароль.'));
     }
-    apiUser.saveAuthDataAsCookie(event.cookies, { userId: user.id ?? 0, userName: user.name ?? '', token: user.token ?? '' });
+
+    event.cookies.set('todo-token', user.token ?? '', {
+        path: '/',
+        maxAge: 14 * 60 * 60 * 24
+    });
+
     redirect(303, redirectTo);
 });
 
@@ -47,7 +51,7 @@ export const logout = form(async () => {
 
     let result = await apiUser.logout({ user: event.locals.user });
     if (result) {
-        deleteOnServerSecurityCookie(event.cookies);
+        event.cookies.delete('todo-token', { path: '/' });
         redirect(302, '/');
     } else {
         error(500, 'Cant logout!');

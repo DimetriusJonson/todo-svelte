@@ -1,9 +1,6 @@
-import type { AuthData } from "$lib/model/AuthData.svelte";
 import type { CreateUserRequest, User } from "$lib/model/User.svelte";
 import { checkPassword, hashPassword } from "$lib/server/crypt";
-import { createJwtToken, parseJwtToken } from "$lib/server/jwt";
-import { SECURITY_COOKIE_NAME } from "$lib/store/settings.svelte";
-import { error, type Cookies } from "@sveltejs/kit";
+import { createJwtToken } from "$lib/server/jwt";
 import { type ApiUser } from "./ApiUser";
 import sql from "$lib/server/db";
 
@@ -15,25 +12,6 @@ export class ApiUserDb implements ApiUser {
         }
 
         return null;
-    }
-
-    parseToken(params: any): AuthData | null {
-        let value = params.cookies.get(SECURITY_COOKIE_NAME);
-        if (value) {
-            return parseJwtToken(value);
-        }
-        return null;
-    }
-
-    saveAuthDataAsCookie(cookies: Cookies, authData: AuthData) {
-        if (authData.token) {
-            cookies.set(SECURITY_COOKIE_NAME, authData.token, {
-                path: '/',
-                maxAge: 14 * 60 * 60 * 24
-            });
-        } else {
-            cookies.delete(SECURITY_COOKIE_NAME, { path: '/' });
-        }
     }
 
     async getUsers(_params: any): Promise<User[]> {
