@@ -1,7 +1,6 @@
 import type { AuthData } from "$lib/model/AuthData.svelte";
 import type { CreateUserRequest, CreateUserResponse, LoginRequest, LoginResponse, LogoutResponse, User, UsersResponse } from "$lib/model/User.svelte";
 import type { Cookies } from "@sveltejs/kit";
-import type { ApiResponse } from "./ApiCommon.svelte";
 
 export interface ApiUser {
     login(params: any, request: LoginRequest): Promise<ApiResponse<LoginResponse>>;
@@ -20,4 +19,5 @@ export interface ApiUser {
 //export const apiUser = new ApiUserDb();
 
 import { ApiUserNeonDb } from "./postgres/ApiUserNeonDb";
+import type { ApiResponse } from "./apiTypes";
 export const apiUser = new ApiUserNeonDb();

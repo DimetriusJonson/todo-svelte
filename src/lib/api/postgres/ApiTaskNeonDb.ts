@@ -1,9 +1,9 @@
 import type { Task, TasksResponse } from "$lib/model/Task.svelte";
 import { error, redirect } from "@sveltejs/kit";
-import type { ApiTask } from "./ApiTask";
-import type { ApiResponse } from "./ApiCommon.svelte";
+import type { ApiTask } from "./../ApiTask";
 import { getCurrentUser } from "./ApiUserNeonDb";
 import sql from "$lib/server/neonDb";
+import type { ApiResponse } from "../apiTypes";
 
 export class ApiTaskNeonDb implements ApiTask {
 

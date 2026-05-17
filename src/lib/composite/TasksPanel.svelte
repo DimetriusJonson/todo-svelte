@@ -1,11 +1,11 @@
 <script lang="ts">
-  import { type ApiError } from "$lib/api/ApiCommon.svelte";
   import { taskFromJson, type Task } from "$lib/model/Task.svelte";
   import { priorityName } from "$lib/TaskHelper.svelte";
   import Checkbox from "$lib/components/Checkbox.svelte";
   import { showError, showInfo } from "$lib/store/messages.svelte";
   import { onMount } from "svelte";
   import { changeCompletedTask } from "$lib/remote/task.remote";
+  import type { ApiError } from "$lib/api/apiTypes";
 
   interface Props {
     tasks: Task[];

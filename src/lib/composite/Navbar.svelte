@@ -1,12 +1,8 @@
 <script lang="ts">
-    import { enhance } from "$app/forms";
-    import { goto } from "$app/navigation";
-    import { type ApiError } from "$lib/api/ApiCommon.svelte";
     import Button from "$lib/components/Button.svelte";
     import ButtonLink from "$lib/components/ButtonLink.svelte";
     import { logout } from "$lib/remote/user.remote";
     import { showError, showInfo } from "$lib/store/messages.svelte";
-    import { apiInProgressGlobal } from "$lib/store/settings.svelte";
     import { onMount } from "svelte";
 
     let navLinksActive = $state(true);

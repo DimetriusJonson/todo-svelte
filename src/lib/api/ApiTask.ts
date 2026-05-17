@@ -1,5 +1,5 @@
 import type { Task, TasksResponse } from "$lib/model/Task.svelte";
-import type { ApiResponse } from "./ApiCommon.svelte";
+import type { ApiResponse } from "./apiTypes";
 
 export interface ApiTask {
     getList(params: any): Promise<ApiResponse<TasksResponse>>;

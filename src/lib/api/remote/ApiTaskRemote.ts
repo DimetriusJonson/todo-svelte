@@ -1,6 +1,7 @@
 import type { Task, TasksResponse } from "$lib/model/Task.svelte";
-import { fetchData, makeRequest, type ApiResponse } from "./ApiCommon.svelte";
-import type { ApiTask } from "./ApiTask";
+import { fetchData, makeRequest} from "./ApiCommonRemote.svelte";
+import type { ApiTask } from "./../ApiTask";
+import type { ApiResponse } from "../apiTypes";
 
 export class ApiTaskRemote implements ApiTask {
     async getTaskByTitle(input: string, ignoreId: number, params: any): Promise<Task | null> {

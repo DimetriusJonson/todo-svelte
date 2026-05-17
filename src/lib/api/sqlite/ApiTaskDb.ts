@@ -1,9 +1,9 @@
 import type { Task, TasksResponse } from "$lib/model/Task.svelte";
 import { error, redirect } from "@sveltejs/kit";
-import type { ApiTask } from "./ApiTask";
-import type { ApiResponse } from "./ApiCommon.svelte";
+import type { ApiTask } from "./../ApiTask";
 import { getCurrentUser } from "./ApiUserDb";
 import db from "$lib/server/db";
+import type { ApiResponse } from "../apiTypes";
 
 const GET_TASK_BY_TITLE_SQL = db.prepare(`SELECT * FROM tasks WHERE upper(title) = ? and user_id=? and deleted_at is null and id != ?`);
 

@@ -4,9 +4,9 @@ import { checkPassword, hashPassword } from "$lib/server/crypt";
 import { createJwtToken, parseJwtToken } from "$lib/server/jwt";
 import { SECURITY_COOKIE_NAME } from "$lib/store/settings.svelte";
 import type { Cookies } from "@sveltejs/kit";
-import type { ApiResponse } from "../ApiCommon.svelte";
-import { apiUser, type ApiUser } from "../ApiUser";
+import { type ApiUser } from "../ApiUser";
 import sql from "$lib/server/neonDb";
+import type { ApiResponse } from "../apiTypes";
 
 export class ApiUserNeonDb implements ApiUser {
     async getUserByName(name: string): Promise<User | null> {

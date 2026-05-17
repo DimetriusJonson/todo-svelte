@@ -1,10 +1,7 @@
 import { browser } from "$app/environment";
 import { error, redirect } from "@sveltejs/kit";
-import { apiUser } from "./ApiUser";
-
-export type ApiError = { message: string, unAuthorized?: boolean, validateErrors?: Map<string, string> | null };
-
-export type ApiResponse<T> = { success: boolean, responseData: T | null, status: number, error: ApiError | null };
+import { apiUser } from "../ApiUser";
+import type { ApiResponse } from "../apiTypes";
 
 export async function makeRequest<T>(path: string, method: string, requestData: object | null, cookies: any): Promise<ApiResponse<T>> {
     let authData = apiUser.parseToken({ cookies: cookies });
