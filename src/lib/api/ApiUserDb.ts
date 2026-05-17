@@ -57,7 +57,7 @@ export class ApiUserDb implements ApiUser {
         return { id: rows[0].id, name: request.username } as User;
     }
 
-    async login(_params: any, username: string, password: string): Promise<User> {
+    async login(_params: any, username: string, password: string): Promise<User | null> {
         let userRow;
 
         let rows: any = await sql`SELECT * FROM users WHERE username=${username} and deleted_at is null`;
@@ -66,11 +66,11 @@ export class ApiUserDb implements ApiUser {
         }
 
         if (!userRow) {
-            error(404, `Пользователь ${username} не найден`);
+            return null;
         }
 
         if (!await checkPassword(password, userRow.password)) {
-            error(400, 'Неверное имя пользователя или пароль!');
+            return null;
         }
 
         let token = createJwtToken(userRow.id, userRow.username);

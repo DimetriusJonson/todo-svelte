@@ -2,7 +2,7 @@ import { form, getRequestEvent, query } from "$app/server";
 import { apiUser } from '$lib/api/ApiUser';
 import { LoginSchema, passwordValidateRegExp, userNameValidateRegExp, type CreateUserRequest } from '$lib/model/User.svelte';
 import { deleteOnServerSecurityCookie } from "$lib/store/settings.svelte";
-import { redirect } from '@sveltejs/kit';
+import { invalid, redirect } from '@sveltejs/kit';
 import { error } from "node:console";
 import * as v from "valibot";
 
@@ -23,10 +23,13 @@ const CreateUserServerSchema = v.objectAsync({
     ),
 });
 
-export const login = form(LoginSchema, async ({ userName, password, redirectTo }) => {
+export const login = form(LoginSchema, async ({ userName, password, redirectTo }, issue) => {
     const event = getRequestEvent();
 
     let user = await apiUser.login(null, userName, password);
+    if (!user) {
+        invalid(issue.password('Неверное имя пользователя или пароль.'));
+    }
     apiUser.saveAuthDataAsCookie(event.cookies, { userId: user.id ?? 0, userName: user.name ?? '', token: user.token ?? '' });
     redirect(303, redirectTo);
 });
