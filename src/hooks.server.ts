@@ -1,4 +1,3 @@
-import { apiUser } from '$lib/api/ApiUser';
 import { redirect, type Handle } from '@sveltejs/kit';
 import { building } from '$app/environment';
 import type { User } from '$lib/model/User.svelte';
@@ -11,9 +10,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
     const routeId = event.route.id;
 
-    let sec_value = event.cookies.get('todo-token');
-    let authData = sec_value ? parseJwtToken(sec_value) : null;
-
+    let authData = parseJwtToken(event.cookies.get('todo-token'));
     if (!authData) {
         if (!event.url.pathname.startsWith('/login') && (routeId?.includes('(authed)'))) {
             throw redirect(303, '/login?redirectTo=' + event.url.pathname);

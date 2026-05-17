@@ -6,7 +6,7 @@ export function createJwtToken(userId: number, userName: string): string {
     return jwt.sign({ user_id: userId, user_name: userName }, env.JWT_SECRET, { expiresIn: '24h' });
 }
 
-export function parseJwtToken(token: string): AuthData | null {
+export function parseJwtToken(token: string | null | undefined): AuthData | null {
     if (!token) {
         return null;
     }
