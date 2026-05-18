@@ -1,5 +1,5 @@
 import { form, getRequestEvent, query } from "$app/server";
-import { LoginSchema, passwordValidateRegExp, userNameValidateRegExp, type User } from '$lib/model/User.svelte';
+import { type User } from '$lib/model/User.svelte';
 import { checkPassword } from "$lib/server/crypt";
 import { dbInsertUser, dbUpdateUserToken, findAllUsers, findUserByName } from "$lib/server/dao/user.dao";
 import { createJwtToken } from "$lib/server/jwt";
@@ -11,19 +11,20 @@ const isUserNameExist = async (input: string) => {
     return await findUserByName(input, false) === null;
 };
 
-const CreateUserServerSchema = v.objectAsync({
-    userName: v.pipeAsync(
+const userNameValidateRegExp = v.regex(/^[a-zA-Z][a-zA-Z0-9_]{2,15}$/, 'Начинается с буквы, за которой следуют буквы, цифры или подчеркивания.');
+const passwordValidateRegExp = v.regex(/^.{4,}$/, "Минимум 4 символов.");
+
+export const login = form(v.object({
+    userName: v.pipe(
         v.string(),
-        userNameValidateRegExp,
-        v.checkAsync(isUserNameExist, "Пользователь уже существует."),
+        userNameValidateRegExp
     ),
     password: v.pipe(
         v.string(),
         passwordValidateRegExp,
     ),
-});
-
-export const login = form(LoginSchema, async ({ userName, password, redirectTo }, issue) => {
+    redirectTo: v.pipe(v.string()),
+}), async ({ userName, password, redirectTo }, issue) => {
     const event = getRequestEvent();
 
     const dbUser = await findUserByName(userName, true);
@@ -46,7 +47,17 @@ export const login = form(LoginSchema, async ({ userName, password, redirectTo }
     redirect(303, redirectTo);
 });
 
-export const createUser = form(CreateUserServerSchema, async ({ userName, password }) => {
+export const createUser = form(v.objectAsync({
+    userName: v.pipeAsync(
+        v.string(),
+        userNameValidateRegExp,
+        v.checkAsync(isUserNameExist, "Пользователь уже существует."),
+    ),
+    password: v.pipe(
+        v.string(),
+        passwordValidateRegExp,
+    ),
+}), async ({ userName, password }) => {
     await dbInsertUser({ name: userName, password: password } as User);
     redirect(303, '/login?defUserName=' + userName);
 });

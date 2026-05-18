@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { CreateUserSchema } from "$lib/model/User.svelte.js";
     import Button from "$lib/components/Button.svelte";
     import MainTitle from "$lib/components/MainTitle.svelte";
     import { showError, showInfo } from "$lib/store/messages.svelte";
@@ -12,7 +11,6 @@
 
     <form
         {...createUser
-            .preflight(CreateUserSchema)
             .enhance(async ({ form, data, submit }) => {
                 console.log('enhance');
                 try {

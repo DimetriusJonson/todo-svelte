@@ -4,7 +4,6 @@
     import { page } from "$app/state";
     import ButtonLink from "$lib/components/ButtonLink.svelte";
     import { showError, showInfo } from "$lib/store/messages.svelte.js";
-    import { LoginSchema } from "$lib/model/User.svelte.js";
     import { login } from "$lib/remote/user.remote";
     import TextWithError from "$lib/components/TextWithError.svelte";
 
@@ -16,7 +15,7 @@
     <MainTitle title="Вход в систему" />
 
     <form
-        {...login.preflight(LoginSchema).enhance(async ({ form, submit }) => {
+        {...login.enhance(async ({ form, submit }) => {
             try {
                 if (await submit()) {
                     form.reset();
