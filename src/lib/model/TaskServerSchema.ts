@@ -1,12 +1,12 @@
 import { getRequestEvent } from "$app/server";
-import { apiTask } from "$lib/api/ApiTask";
+import { taskDao } from "$lib/server/dao/TaskDao";
 import * as v from "valibot";
 
 const titleRegExp = v.regex(/^[А-Яа-яA-Za-z0-9 ]{3,}$/, 'Разрешены только буквы и цифры и не менее 3-х символов.');
 
 const isTaskExist = async (input: string) => {
     let event = getRequestEvent();
-    return await apiTask.getTaskByTitle(input, parseInt(event.params.id ?? '0'), { cookies: getRequestEvent().cookies }) === null
+    return await taskDao.getTaskByTitle(input, parseInt(event.params.id ?? '0'), { cookies: getRequestEvent().cookies }) === null
 };
 
 export const TaskServerSchema = v.objectAsync({

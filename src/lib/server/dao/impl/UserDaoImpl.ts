@@ -1,10 +1,10 @@
 import type { CreateUserRequest, User } from "$lib/model/User.svelte";
 import { checkPassword, hashPassword } from "$lib/server/crypt";
 import { createJwtToken } from "$lib/server/jwt";
-import { type ApiUser } from "./ApiUser";
 import sql from "$lib/server/db";
+import type { UserDao } from "../UserDao";
 
-export class ApiUserDb implements ApiUser {
+export class UserDaoImpl implements UserDao {
     async getUserByName(name: string): Promise<User | null> {
         let rows = await sql`SELECT id FROM users WHERE upper(username)=${name.toUpperCase()} and deleted_at is null`;
         if (rows && rows.length > 0) {

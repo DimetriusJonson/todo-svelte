@@ -1,13 +1,13 @@
 import { form, getRequestEvent, query } from "$app/server";
-import { apiUser } from '$lib/api/ApiUser';
 import { LoginSchema, passwordValidateRegExp, userNameValidateRegExp, type CreateUserRequest } from '$lib/model/User.svelte';
 import { invalid, redirect } from '@sveltejs/kit';
 import { error } from "node:console";
 import * as v from "valibot";
+import { userDao } from "../server/dao/UserDao";
 
 const isUserNameExist = async (input: string) => {
     console.log('isUserNameExist ' + input);
-    return await apiUser.getUserByName(input) === null;
+    return await userDao.getUserByName(input) === null;
 };
 
 const CreateUserServerSchema = v.objectAsync({
@@ -25,7 +25,7 @@ const CreateUserServerSchema = v.objectAsync({
 export const login = form(LoginSchema, async ({ userName, password, redirectTo }, issue) => {
     const event = getRequestEvent();
 
-    let user = await apiUser.login(null, userName, password);
+    let user = await userDao.login(null, userName, password);
     if (!user) {
         invalid(issue.password('Неверное имя пользователя или пароль.'));
     }
@@ -41,7 +41,7 @@ export const login = form(LoginSchema, async ({ userName, password, redirectTo }
 export const createUser = form(CreateUserServerSchema, async ({ userName, password }) => {
     const event = getRequestEvent();
 
-    let user = await apiUser.create({ user: event.locals.user }, { username: userName, password: password } as CreateUserRequest);
+    let user = await userDao.create({ user: event.locals.user }, { username: userName, password: password } as CreateUserRequest);
     console.log('createdUser=' + user);
     redirect(303, '/login?defUserName=' + userName);
 });
@@ -49,7 +49,7 @@ export const createUser = form(CreateUserServerSchema, async ({ userName, passwo
 export const logout = form(async () => {
     const event = getRequestEvent();
 
-    let result = await apiUser.logout({ user: event.locals.user });
+    let result = await userDao.logout({ user: event.locals.user });
     if (result) {
         event.cookies.delete('todo-token', { path: '/' });
         redirect(302, '/');
@@ -59,5 +59,5 @@ export const logout = form(async () => {
 });
 
 export const getUsers = query(async () => {
-    return await apiUser.getUsers({});
+    return await userDao.getUsers({});
 });

@@ -1,9 +1,9 @@
 import type { Task } from "$lib/model/Task.svelte";
 import { error } from "@sveltejs/kit";
-import type { ApiTask } from "./ApiTask";
 import sql from "$lib/server/db";
+import type { TaskDao } from "../TaskDao";
 
-export class ApiTaskDb implements ApiTask {
+export class TaskDaoImpl implements TaskDao {
 
     async getTaskByTitle(input: string, ignoreId: number, params: any): Promise<Task | null> {
         const rows = await sql`SELECT * FROM tasks WHERE upper(title) = ${input.toUpperCase()} and user_id=${params.user?.id ?? null} and deleted_at is null and id != ${ignoreId}`;

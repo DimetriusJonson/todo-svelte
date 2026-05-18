@@ -1,7 +1,7 @@
 import type { Task } from "$lib/model/Task.svelte";
-import { ApiTaskDb } from "./ApiTaskDb";
+import { TaskDaoImpl } from "./impl/TaskDaoImpl";
 
-export interface ApiTask {
+export interface TaskDao {
     getList(params: any): Promise<Task[]>;
     get(params: any, id: number): Promise<Task>;
     delete(params: any, id: number): Promise<boolean>;
@@ -10,4 +10,4 @@ export interface ApiTask {
     getTaskByTitle(input: string, ignoreId: number, params: any): Promise<Task | null>;
 }
 
-export const apiTask = new ApiTaskDb();
+export const taskDao = new TaskDaoImpl();
