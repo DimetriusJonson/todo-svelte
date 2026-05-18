@@ -45,6 +45,7 @@
                 <TextWithError
                     {...login.fields.password.as("password")}
                     placeholder="Пароль"
+                    inputType="password"
                     errors={login.fields.password.issues()}
                 />
             </div>

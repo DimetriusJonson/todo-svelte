@@ -1,13 +1,14 @@
 import { form, getRequestEvent, query } from "$app/server";
 import { LoginSchema, passwordValidateRegExp, userNameValidateRegExp, type CreateUserRequest } from '$lib/model/User.svelte';
+import { checkPassword } from "$lib/server/crypt";
+import { dbInsertUser, dbUpdateUserToken, findAllUsers, findUserByName } from "$lib/server/dao/user.dao";
+import { createJwtToken } from "$lib/server/jwt";
 import { invalid, redirect } from '@sveltejs/kit';
 import { error } from "node:console";
 import * as v from "valibot";
-import { userDao } from "../server/dao/UserDao";
 
 const isUserNameExist = async (input: string) => {
-    console.log('isUserNameExist ' + input);
-    return await userDao.getUserByName(input) === null;
+    return await findUserByName(input, false) === null;
 };
 
 const CreateUserServerSchema = v.objectAsync({
@@ -25,12 +26,19 @@ const CreateUserServerSchema = v.objectAsync({
 export const login = form(LoginSchema, async ({ userName, password, redirectTo }, issue) => {
     const event = getRequestEvent();
 
-    let user = await userDao.login(null, userName, password);
-    if (!user) {
+    const dbUser = await findUserByName(userName, true);
+    if (!dbUser || !dbUser.id) {
         invalid(issue.password('Неверное имя пользователя или пароль.'));
     }
 
-    event.cookies.set('todo-token', user.token ?? '', {
+    if (!await checkPassword(password, dbUser.password ?? '')) {
+        invalid(issue.password('Неверное имя пользователя или пароль.'));
+    }
+
+    let token = createJwtToken(dbUser.id, dbUser.name ?? '');
+    await dbUpdateUserToken(dbUser.id, token);
+
+    event.cookies.set('todo-token', token ?? '', {
         path: '/',
         maxAge: 14 * 60 * 60 * 24
     });
@@ -41,15 +49,14 @@ export const login = form(LoginSchema, async ({ userName, password, redirectTo }
 export const createUser = form(CreateUserServerSchema, async ({ userName, password }) => {
     const event = getRequestEvent();
 
-    let user = await userDao.create({ user: event.locals.user }, { username: userName, password: password } as CreateUserRequest);
-    console.log('createdUser=' + user);
+    await dbInsertUser({ user: event.locals.user }, { username: userName, password: password } as CreateUserRequest);
     redirect(303, '/login?defUserName=' + userName);
 });
 
 export const logout = form(async () => {
     const event = getRequestEvent();
 
-    let result = await userDao.logout({ user: event.locals.user });
+    let result = await dbUpdateUserToken(event.locals.user.id, null);
     if (result) {
         event.cookies.delete('todo-token', { path: '/' });
         redirect(302, '/');
@@ -59,5 +66,5 @@ export const logout = form(async () => {
 });
 
 export const getUsers = query(async () => {
-    return await userDao.getUsers({});
+    return await findAllUsers({});
 });
