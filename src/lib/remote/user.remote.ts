@@ -1,5 +1,5 @@
 import { form, getRequestEvent, query } from "$app/server";
-import { LoginSchema, passwordValidateRegExp, userNameValidateRegExp, type CreateUserRequest } from '$lib/model/User.svelte';
+import { LoginSchema, passwordValidateRegExp, userNameValidateRegExp, type User } from '$lib/model/User.svelte';
 import { checkPassword } from "$lib/server/crypt";
 import { dbInsertUser, dbUpdateUserToken, findAllUsers, findUserByName } from "$lib/server/dao/user.dao";
 import { createJwtToken } from "$lib/server/jwt";
@@ -47,9 +47,7 @@ export const login = form(LoginSchema, async ({ userName, password, redirectTo }
 });
 
 export const createUser = form(CreateUserServerSchema, async ({ userName, password }) => {
-    const event = getRequestEvent();
-
-    await dbInsertUser({ user: event.locals.user }, { username: userName, password: password } as CreateUserRequest);
+    await dbInsertUser({ name: userName, password: password } as User);
     redirect(303, '/login?defUserName=' + userName);
 });
 
@@ -66,5 +64,5 @@ export const logout = form(async () => {
 });
 
 export const getUsers = query(async () => {
-    return await findAllUsers({});
+    return await findAllUsers();
 });

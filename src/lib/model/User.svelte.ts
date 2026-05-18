@@ -7,11 +7,6 @@ export type User = {
     password: string | null;
 };
 
-export type CreateUserRequest = {
-    username: string,
-    password: string,
-}
-
 export const userNameValidateRegExp = v.regex(/^[a-zA-Z][a-zA-Z0-9_]{2,15}$/, 'Начинается с буквы, за которой следуют буквы, цифры или подчеркивания.');
 export const passwordValidateRegExp = v.regex(/^.{4,}$/, "Минимум 4 символов.");
 

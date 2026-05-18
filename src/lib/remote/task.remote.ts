@@ -11,9 +11,9 @@ export const createTask = form(TaskServerSchema, async ({ title, priority, compl
 
     let completed_at = buildTaskCompletedAt(completed ? true : false, oldCompleted_at);
 
-    let task = await dbInsertTask({ user: event.locals.user }, {
+    let task = await dbInsertTask({
         title, priority, completed_at, description
-    } as Task);
+    } as Task, event.locals.user.id);
 
     redirect(302, '/task/' + task.id);
 });
@@ -21,7 +21,7 @@ export const createTask = form(TaskServerSchema, async ({ title, priority, compl
 export const getTask = query(v.string(), async (id) => {
     const event = getRequestEvent();
 
-    let task = await findTaskById({ user: event.locals.user }, parseInt(id));
+    let task = await findTaskById(parseInt(id), event.locals.user.id);
     if (task) {
         task.completed = isTaskCompleted(task.completed_at);
     }
@@ -33,7 +33,7 @@ export const deleteTask = form(v.objectAsync({
 }), async ({ id }) => {
     const event = getRequestEvent();
 
-    let result = await dbDeleteTask({ user: event.locals.user }, parseInt(id));
+    let result = await dbDeleteTask(parseInt(id), event.locals.user.id);
     if (result) {
         redirect(302, '/');
     }
@@ -45,9 +45,9 @@ export const updateTask = form(TaskServerSchema, async ({ id, title, priority, c
 
     let completed_at = buildTaskCompletedAt(completed ? true : false, oldCompleted_at);
 
-    let task = await dbUpdateTask({ user: event.locals.user }, {
+    let task = await dbUpdateTask({
         id: parseInt(id), title, priority, completed_at, description
-    } as Task);
+    } as Task, event.locals.user.id);
 
     redirect(302, '/task/' + task.id);
 });
@@ -63,7 +63,7 @@ export const changeCompletedTask = command(v.object({
         completed_at: completed ? new Date().toISOString() : MIN_COMPLETED_AT,
     };
 
-    return await dbUpdateTask({ user: event.locals.user }, patch);
+    return await dbUpdateTask(patch, event.locals.user.id);
 });
 
 
@@ -95,7 +95,7 @@ export const getTasks = query(
     ), async ({ filter, sortKind }) => {
         const event = getRequestEvent();
 
-        let tasks = await findTasks({ user: event.locals.user });
+        let tasks = await findTasks(event.locals.user.id);
         return buildTasks(tasks, filter, sortKind);
     });
 

@@ -1,4 +1,4 @@
-import type { CreateUserRequest, User } from "$lib/model/User.svelte";
+import type { User } from "$lib/model/User.svelte";
 import { hashPassword } from "$lib/server/crypt";
 import sql from "$lib/server/db";
 
@@ -15,7 +15,7 @@ export async function findUserByName(name: string, withPassword: boolean): Promi
     return null;
 }
 
-export async function findAllUsers(_params: any): Promise<User[]> {
+export async function findAllUsers(): Promise<User[]> {
     const dbUsers: any[] = await sql`SELECT * FROM users WHERE deleted_at is null`;
 
     let users: User[] = [];
@@ -30,10 +30,10 @@ export async function findAllUsers(_params: any): Promise<User[]> {
     return users;
 }
 
-export async function dbInsertUser(_params: any, request: CreateUserRequest): Promise<User> {
-    let hashedPassword = await hashPassword(request.password);
-    let rows = await sql`INSERT INTO users(username, password) VALUES(${request.username}, ${hashedPassword}) RETURNING id`;
-    return { id: rows[0].id, name: request.username } as User;
+export async function dbInsertUser(user: User): Promise<User> {
+    let hashedPassword = await hashPassword(user.password ?? '');
+    let rows = await sql`INSERT INTO users(username, password) VALUES(${user.name}, ${hashedPassword}) RETURNING id`;
+    return { ...user, id: rows[0].id};
 }
 
 export async function dbUpdateUserToken(userId: number, token: string | null): Promise<boolean> {

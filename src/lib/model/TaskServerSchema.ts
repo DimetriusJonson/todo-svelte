@@ -6,7 +6,7 @@ const titleRegExp = v.regex(/^[А-Яа-яA-Za-z0-9 ]{3,}$/, 'Разрешены 
 
 const isTaskExist = async (input: string) => {
     let event = getRequestEvent();
-    return await findTaskByTitle(input, parseInt(event.params.id ?? '0'), { cookies: getRequestEvent().cookies }) === null
+    return await findTaskByTitle(input, parseInt(event.params.id ?? '0'), event.locals.user.id) === null
 };
 
 export const TaskServerSchema = v.objectAsync({
