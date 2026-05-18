@@ -1,5 +1,4 @@
 import type { Task } from "$lib/model/Task.svelte";
-import { error } from "@sveltejs/kit";
 import sql from "$lib/server/db";
 
 export async function findTaskByTitle(input: string, ignoreId: number, userId: number): Promise<Task | null> {
@@ -18,7 +17,7 @@ export async function findTaskByTitle(input: string, ignoreId: number, userId: n
     return null;
 }
 
-export async function findTaskById(id: number, userId: number): Promise<Task> {
+export async function findTaskById(id: number, userId: number): Promise<Task | null> {
     const rows = await sql`SELECT * FROM tasks WHERE id = ${id} and user_id=${userId}`;
     if (rows && rows.length > 0) {
         let row = rows[0];
@@ -29,9 +28,8 @@ export async function findTaskById(id: number, userId: number): Promise<Task> {
             priority: row.priority,
             completed_at: row.completed_at.toISOString()
         } as Task;
-    } else {
-        error(404, `Задача ${1} не найдена!`);
     }
+    return null;
 }
 
 export async function findTasks(userId: number): Promise<Task[]> {

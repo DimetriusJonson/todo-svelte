@@ -24,6 +24,8 @@ export const getTask = query(v.string(), async (id) => {
     let task = await findTaskById(parseInt(id), event.locals.user.id);
     if (task) {
         task.completed = isTaskCompleted(task.completed_at);
+    } else {
+        error(404, `Задача не найдена!`);
     }
     return task;
 });
