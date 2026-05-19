@@ -6,6 +6,7 @@
     import TextArea from "$lib/components/TextArea.svelte";
     import TextWithError from "$lib/components/TextWithError.svelte";
     import { getPriorities } from "$lib/remote/task.remote";
+    import { TaskSchema } from "$lib/remote/task.schema";
     import { showInfo } from "$lib/store/messages.svelte";
 
     let { sourceForm, task } = $props();
@@ -14,19 +15,20 @@
 </script>
 
 <form
-    {...sourceForm.enhance(
-        async ({ submit }: { form: HTMLFormElement; submit: any }) => {
+    {...sourceForm
+        .preflight(TaskSchema)
+        .enhance(async ({ submit }: { form: HTMLFormElement; submit: any }) => {
             if (await submit()) {
                 if (sourceForm.result?.task) {
                     showInfo("Задача сохранена");
-                };
+                }
                 sourceForm.fields.priority.set(null);
                 sourceForm.fields.completed.set(null);
                 sourceForm.fields.title.set(null);
                 sourceForm.fields.description.set(null);
             }
-        },
-    )}
+        })}
+        oninput={() => sourceForm.validate()}
 >
     <fieldset disabled={sourceForm.pending > 0}>
         <input type="hidden" name="id" value={task?.id} />

@@ -6,13 +6,11 @@ import { createJwtToken } from "$lib/server/jwt";
 import { invalid, redirect } from '@sveltejs/kit';
 import { error } from "node:console";
 import * as v from "valibot";
+import { CreateUserSchema, passwordValidateRegExp, userNameValidateRegExp } from "./user.schema";
 
 const isUserNameExist = async (input: string) => {
     return await findUserByName(input, false) === null;
 };
-
-const userNameValidateRegExp = v.regex(/^[a-zA-Z][a-zA-Z0-9_]{2,15}$/, 'Начинается с буквы, за которой следуют буквы, цифры или подчеркивания.');
-const passwordValidateRegExp = v.regex(/^.{4,}$/, "Минимум 4 символов.");
 
 export const login = form(v.object({
     userName: v.pipe(
@@ -47,17 +45,12 @@ export const login = form(v.object({
     redirect(303, redirectTo);
 });
 
-export const createUser = form(v.objectAsync({
+export const createUser = form(v.intersectAsync([CreateUserSchema, v.objectAsync({
     userName: v.pipeAsync(
         v.string(),
-        userNameValidateRegExp,
         v.checkAsync(isUserNameExist, "Пользователь уже существует."),
     ),
-    password: v.pipe(
-        v.string(),
-        passwordValidateRegExp,
-    ),
-}), async ({ userName, password }) => {
+})]), async ({ userName, password }) => {
     await dbInsertUser({ name: userName, password: password } as User);
     redirect(303, '/login?defUserName=' + userName);
 });

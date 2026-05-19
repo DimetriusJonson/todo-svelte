@@ -1,10 +1,22 @@
 import { command, form, getRequestEvent, prerender, query } from "$app/server";
 import { isTaskCompleted, MIN_COMPLETED_AT, type Task } from "$lib/model/Task.svelte";
-import { TaskServerSchema } from "$lib/model/TaskServerSchema";
-import { dbDeleteTask, dbUpdateTask, findTaskById, findTasks, dbInsertTask } from "$lib/server/dao/task.dao";
+import { dbDeleteTask, dbUpdateTask, findTaskById, findTasks, dbInsertTask, findTaskByTitle } from "$lib/server/dao/task.dao";
 import { buildTaskCompletedAt, filterTask, priorityName, sortTask } from "$lib/TaskHelper.svelte";
 import { error, redirect } from '@sveltejs/kit';
 import * as v from 'valibot';
+import { TaskSchema } from "./task.schema";
+
+const isTaskExist = async (input: string) => {
+    let event = getRequestEvent();
+    return await findTaskByTitle(input, parseInt(event.params.id ?? '0'), event.locals.user.id) === null
+};
+
+const TaskServerSchema = v.intersectAsync([TaskSchema, v.objectAsync({
+    title: v.pipeAsync(
+        v.string(),
+        v.checkAsync(isTaskExist, 'Задача уже существует.')
+    ),
+})]);
 
 export const createTask = form(TaskServerSchema, async ({ title, priority, completed, oldCompleted_at, description }) => {
     const event = getRequestEvent();

@@ -2,15 +2,16 @@
     import Button from "$lib/components/Button.svelte";
     import MainTitle from "$lib/components/MainTitle.svelte";
     import { showError, showInfo } from "$lib/store/messages.svelte";
-    import { createUser } from "$lib/remote/user.remote";
+    import { createUser} from "$lib/remote/user.remote";
     import TextWithError from "$lib/components/TextWithError.svelte";
+    import { CreateUserSchema } from "$lib/remote/user.schema";
 </script>
 
 <div class="container p-4">
     <MainTitle title="Создать пользователя" />
 
     <form
-        {...createUser
+        {...createUser.preflight(CreateUserSchema)
             .enhance(async ({ form, data, submit }) => {
                 console.log('enhance');
                 try {
