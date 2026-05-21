@@ -77,7 +77,8 @@ export const changeCompletedTask = command(v.object({
         completed_at: completed ? new Date().toISOString() : MIN_COMPLETED_AT,
     };
 
-    return await dbUpdateTask(patch, event.locals.user.id);
+    let saved_task = await dbUpdateTask(patch, event.locals.user.id);
+    return {...saved_task, completed: isTaskCompleted(saved_task.completed_at) };
 });
 
 
