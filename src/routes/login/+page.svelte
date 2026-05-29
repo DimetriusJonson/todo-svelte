@@ -15,14 +15,16 @@
     <MainTitle title="Вход в систему" />
 
     <form
-        {...login.enhance(async ({ form, submit }) => {
+        {...login.enhance(async (instance) => {
             try {
-                if (await submit()) {
-                    form.reset();
+                if (await instance.submit()) {
+                    console.log("instance=" + instance);
+
+                    instance.element.reset();
                     showInfo("Вы вошли!");
                 }
             } catch (error: any) {
-                showError(error);
+                showError("login:" + error);
             }
         })}
         oninput={() => login.validate()}

@@ -13,12 +13,13 @@
 
     <form
         {...createUser.preflight(CreateUserSchema)
-            .enhance(async ({ form, data, submit }) => {
+            .enhance(async (instance) => {
                 console.log('enhance');
                 try {
-                    if (await submit()) {
-                        form.reset();
-                        showInfo(data.userName + " успешно создан.");
+                    if (await instance.submit()) {
+                        instance.element.reset();
+                        
+                        showInfo(createUser.fields.userName.value() + " успешно создан.");
                     }
                 } catch (error: any) {
                     showError(error);
