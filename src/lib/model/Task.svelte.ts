@@ -1,4 +1,4 @@
-export const MIN_COMPLETED_AT = '1900-01-01T00:00:00.000Z';
+export const MIN_COMPLETED_AT = new Date("1950-01-01T00:00:00Z").toISOString();
 
 export type Task = {
     id?: number | null;
