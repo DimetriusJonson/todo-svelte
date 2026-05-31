@@ -43,7 +43,10 @@
 <section class="section p-0">
 	<div class="is-paddingless">
 		<Navbar user={data.user} />
-		{@render children()}
+		<main>
+			{@render children()}
+		</main>		
+		
 		<MessageBanner />
 	</div>
 </section>

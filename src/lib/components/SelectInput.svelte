@@ -1,6 +1,7 @@
 <script lang="ts">
     let {
         name,
+        label,
         options,
         className = "",
         value = $bindable(),
@@ -12,6 +13,7 @@
 <div class={"select " + className}>
     <select
         id = {name}
+        aria-label={label}
         {name}
         bind:value
         onchange={(event: Event & { currentTarget: HTMLSelectElement }) => {

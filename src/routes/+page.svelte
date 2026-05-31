@@ -7,7 +7,6 @@
     import type { TasksSettings } from "$lib/model/TasksSettings.svelte.js";
     import Button from "$lib/components/Button.svelte";
     import { page } from "$app/state";
-    import { onMount } from "svelte";
     import ButtonLink from "$lib/components/ButtonLink.svelte";
     import {
         getFilterOptions,
@@ -21,7 +20,9 @@
     let sortSelect = $derived(page.url.searchParams.get("sortSelect"));
 
     let showFilterSubmit = $state(true);
-    onMount(() => (showFilterSubmit = false));
+    $effect.pre(() => {
+        showFilterSubmit = false;
+    });
 
     let tasksSettings = localStore<TasksSettings>(
         "tasksSettings",
@@ -46,6 +47,7 @@
                 <SelectInput
                     className="is-size-7-mobile"
                     name="filterSelect"
+                    label="Фильтр"
                     notSelectedText="Фильтр"
                     value={filterSelect ?? tasksSettings.value.filter}
                     options={await getFilterOptions()}
@@ -57,6 +59,7 @@
                 <SelectInput
                     className="is-size-7-mobile pl-2"
                     name="sortSelect"
+                    label="Сортировка"
                     notSelectedText="Сортировка"
                     value={sortSelect ?? tasksSettings.value.sortKind}
                     options={await getSortOptions()}
