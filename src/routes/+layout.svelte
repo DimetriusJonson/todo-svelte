@@ -1,4 +1,7 @@
 <script lang="ts">
+	import"$lib/assets/bulma.min.css";
+	import"$lib/assets/todobulma.css";
+
 	import favicon from "$lib/assets/favicon.svg";
 	import MessageBanner from "$lib/composite/MessageBanner.svelte";
 	import Navbar from "$lib/composite/Navbar.svelte";

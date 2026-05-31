@@ -1,5 +1,5 @@
 <script lang="ts">
-	import "./checkbox.css";
+	import "$lib/assets/checkbox.css";
 
     let { name, title, className, value, disabled, inputRef = $bindable(), onChange = () => {} } = $props();
     
