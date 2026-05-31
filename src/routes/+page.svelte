@@ -19,11 +19,6 @@
     let filterSelect = $derived(page.url.searchParams.get("filterSelect"));
     let sortSelect = $derived(page.url.searchParams.get("sortSelect"));
 
-    let showFilterSubmit = $state(true);
-    $effect.pre(() => {
-        showFilterSubmit = false;
-    });
-
     let tasksSettings = localStore<TasksSettings>(
         "tasksSettings",
         {} as TasksSettings,
@@ -68,9 +63,9 @@
                         tasksSettings.saveValue();
                     }}
                 />
-                {#if showFilterSubmit}
+                <noscript>
                     <Button className="is-light is-size-7-mobile" label="Ok" />
-                {/if}
+                </noscript>
             </span>
             {#if data.user}
                 <ButtonLink

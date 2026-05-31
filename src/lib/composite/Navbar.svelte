@@ -5,16 +5,24 @@
     import { showInfo } from "$lib/store/messages.svelte";
     import { onMount } from "svelte";
 
-    let navLinksActive = $state(true);
+    let navLinksActive = $state(false);
 
     let { user } = $props();
 
     let onServerRedirectTo = $derived("/");
     onMount(() => {
         onServerRedirectTo = "";
-        navLinksActive = false;
     });
+    
 </script>
+
+<noscript>
+    <style>
+        .no-script-navbar-menu {
+            display: block;
+        }
+    </style>
+</noscript>
 
 <nav class="navbar is-primary" aria-label="main navigation">
     <div class="navbar-brand">
@@ -39,7 +47,7 @@
     </div>
 
     <div
-        class={`navbar-menu ${navLinksActive ? "is-active" : ""}`}
+        class={`navbar-menu no-script-navbar-menu ${navLinksActive ? "is-active" : ""}`}
         id="nav-links"
     >
         <div class="navbar-start">
