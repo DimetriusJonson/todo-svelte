@@ -1,5 +1,5 @@
 <script lang="ts">
-	import "./checkbox.css";
+	import "$lib/assets/checkbox.css";
 
     let { name, label, className = "", checked = $bindable()} = $props();
 </script>
