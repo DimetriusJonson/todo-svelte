@@ -14,6 +14,7 @@
 <label class="label mx-2" for={name}>{label}</label>
 <SelectInput
     {name}
+    {label}
     bind:value={value}
     {options}
     notSelectedText={"Не выбран"}

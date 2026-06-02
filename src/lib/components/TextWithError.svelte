@@ -10,7 +10,7 @@
 
 <div class="control">
     <input
-        class={"input { error.length > 0 ? 'is-danger' : '' }"}
+        class={"input " + ( errors.length > 0 ? 'is-danger' : '' )}
         type={inputType}
         id={name}
         {name}
