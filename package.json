@@ -9,7 +9,9 @@
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
-		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch"
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"build-bulma": "sass --load-path=node_modules --no-source-map ./src/bulma.scss ./src/lib/assets/bulma.css",
+		"start": "npm run build-bulma -- --watch"
 	},
 	"devDependencies": {
 		"@sveltejs/adapter-auto": "^7.0.1",
@@ -28,8 +30,10 @@
 	},
 	"dependencies": {
 		"bcrypt": "^6.0.0",
+		"bulma": "^1.0.4",
 		"jsonwebtoken": "^9.0.3",
 		"postgres": "^3.4.9",
+		"sass": "^1.100.0",
 		"valibot": "^1.4.0"
 	}
 }
