@@ -43,7 +43,7 @@ export async function findTasks(userId: number): Promise<Task[]> {
             description: dbTask.description,
             priority: dbTask.priority,
             completed_at:
-                dbTask.completed_at.toISOString()
+                dbTask.completed_at?.toISOString()
         } as Task;
         tasks.push(task);
     });
