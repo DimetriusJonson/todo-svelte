@@ -26,7 +26,7 @@ export async function findTaskById(id: number, userId: number): Promise<Task | n
             title: row.title,
             description: row.description,
             priority: row.priority,
-            completed_at: row.completed_at.toISOString()
+            completed_at: row.completed_at?.toISOString()
         } as Task;
     }
     return null;
